@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-const Input = ({name, type, value, className, labelText, placeholder, handleChange}) => {
+const Input = ({id, name, type, value, className, labelText, placeholder, handleChange}) => {
 
   return (
     <>
@@ -11,6 +11,7 @@ const Input = ({name, type, value, className, labelText, placeholder, handleChan
     )}
 
     <input
+        id={id}
         name={name}
         type={type}
         value={value}
@@ -28,7 +29,8 @@ Input.propTypes = {
     name: PropTypes.string.isRequired,
     labelText: PropTypes.string,
     type: PropTypes.string.isRequired,
-    value: PropTypes.string,
+    value: PropTypes.any,
+    id: PropTypes.string,
     className: PropTypes.string,
     placeholder: PropTypes.string,
     handleChange: PropTypes.func,
