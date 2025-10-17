@@ -1,4 +1,4 @@
-import React from 'react';
+import './AuthTabs.scss'
 
 const AuthTabs = () => {
   return (

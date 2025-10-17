@@ -1,9 +1,15 @@
-import React from 'react'
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { AppRouter } from './routes';
+import './App.scss'
 
 export const App = () => {
   return (
     <>
-    <div>App</div>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
     </>
-  )
-}
+  );
+};
+export default App;
