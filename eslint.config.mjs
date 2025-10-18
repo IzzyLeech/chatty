@@ -17,7 +17,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.jest, // ✅ use globals package instead of plugin.environments
+        ...globals.jest, 
       },
       parserOptions: {
         ecmaFeatures: { jsx: true },
