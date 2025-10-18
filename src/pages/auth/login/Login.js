@@ -31,7 +31,7 @@ export const Login = () => {
             handleChange={() => {}}
           />
           <label className="checkmark-container" htmlFor="checkbox">
-            <Input id="checkbox" name="checkbox" type="checkbox" value={false} handleChange={() => {}}/>
+            <Input id="checkbox" name="checkbox" type="checkbox" value={false} handleChange={() => {}} />
             Keep me signed in
           </label>
         </div>

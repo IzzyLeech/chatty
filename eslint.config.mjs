@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import globals from "globals";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import jestPlugin from "eslint-plugin-jest";
@@ -14,8 +15,9 @@ export default [
       ecmaVersion: "latest",
       sourceType: "module",
       globals: {
-        ...js.environments.browser.globals,
-        ...jestPlugin.environments.globals.globals,
+        ...globals.browser,
+        ...globals.node,
+        ...globals.jest, // ✅ use globals package instead of plugin.environments
       },
       parserOptions: {
         ecmaFeatures: { jsx: true },
@@ -57,4 +59,4 @@ export default [
       "react/display-name": "off",
     },
   },
-]
+];
