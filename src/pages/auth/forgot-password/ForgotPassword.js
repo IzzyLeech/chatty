@@ -1,11 +1,11 @@
 import React from 'react';
-import './Login.scss';
-import { FaArrowRight } from 'react-icons/fa';
+import './ForgotPassword.scss';
 import Input from '../../../components/input/Input';
 import Button from '../../../components/button/Button';
+import { FaArrowLeft } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-export const Login = () => {
+export const ForgotPassword = () => {
   return (
     <div className="auth-inner">
       {/* <div className="alerts" role="alert">
@@ -31,15 +31,12 @@ export const Login = () => {
             placeholder="Enter Password"
             handleChange={() => {}}
           />
-          <label className="checkmark-container" htmlFor="checkbox">
-            <Input id="checkbox" name="checkbox" type="checkbox" value={false} handleChange={() => {}} />
-            Keep me signed in
-          </label>
         </div>
         <Button label={'SIGNIN'} className="auth-button button" disavled={true} />
-        <Link to={'/forgot-password'}>
+
+        <Link to={'/'}>
           <span className="forgot-password">
-            Forgot password? <FaArrowRight className="arrow-right" />
+            <FaArrowLeft className="arrow-left" /> back to Login
           </span>
         </Link>
       </form>
@@ -47,4 +44,4 @@ export const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;
