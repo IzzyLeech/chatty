@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Register.scss';
 import Input from '../../../components/input/Input';
 import Button from '../../../components/button/Button';
@@ -13,6 +13,7 @@ export const Register = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [alertType, setAlertType] = useState('');
   const [hasError, setHasError] = useState(false);
+  const [user, setUser] = useState();
 
   const registerUser = async (event) => {
     setLoading(true);
@@ -43,6 +44,14 @@ export const Register = () => {
       console.error('Signup error:', error);
     }
   };
+
+  useEffect(() => {
+    if (loading && !user) return;
+    if (user) {
+      console.log('navigate to streams page');
+      setLoading(false);
+    }
+  }, [loading, user]);
 
   return (
     <div className="auth-inner">
