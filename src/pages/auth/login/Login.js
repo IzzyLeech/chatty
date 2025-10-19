@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import './Login.scss';
+import '@pages/auth/login/Login.scss';
 import { FaArrowRight } from 'react-icons/fa';
-import Input from '../../../components/input/Input';
-import Button from '../../../components/button/Button';
+import Input from '@components/input/Input';
+import Button from '@components/button/Button';
 import { Link } from 'react-router-dom';
-import { authService } from '../../../services/api/auth/auth.service';
+import { authService } from '@services/api/auth/auth.service';
 
 export const Login = () => {
   const [username, setUsername] = useState('');
