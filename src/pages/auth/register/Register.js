@@ -4,6 +4,7 @@ import Input from '@components/input/Input';
 import Button from '@components/button/Button';
 import { Utils } from '@services/utils/utils.service';
 import { authService } from '@services/api/auth/auth.service';
+import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -14,6 +15,7 @@ export const Register = () => {
   const [alertType, setAlertType] = useState('');
   const [hasError, setHasError] = useState(false);
   const [user, setUser] = useState();
+  const navigate = useNavigate();
 
   const registerUser = async (event) => {
     setLoading(true);
@@ -47,11 +49,8 @@ export const Register = () => {
 
   useEffect(() => {
     if (loading && !user) return;
-    if (user) {
-      console.log('navigate to streams page');
-      setLoading(false);
-    }
-  }, [loading, user]);
+    if (user) navigate('/app/social/streams');
+  }, [loading, user, navigate]);
 
   return (
     <div className="auth-inner">
