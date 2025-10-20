@@ -5,6 +5,7 @@ import Button from '@components/button/Button';
 import { Utils } from '@services/utils/utils.service';
 import { authService } from '@services/api/auth/auth.service';
 import { useNavigate } from 'react-router-dom';
+import useLocalStorage from '@hooks/useLocalStorage';
 
 export const Register = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +16,8 @@ export const Register = () => {
   const [alertType, setAlertType] = useState('');
   const [hasError, setHasError] = useState(false);
   const [user, setUser] = useState();
+  const [setStoredUsername] = useLocalStorage('username', 'set');
+  const [setLoggedIn] = useLocalStorage('keepLoggedIn', 'set');
   const navigate = useNavigate();
 
   const registerUser = async (event) => {
@@ -33,9 +36,8 @@ export const Register = () => {
       });
       console.log('Signup result:', result);
 
-      // 1 -set logged in to true in local stroage
-      // 2 - set username in local storage
-      // 3 - dispatch user to redux
+      setLoggedIn(true);
+      setStoredUsername(username);
       setHasError(false);
       setAlertType('alert-success');
     } catch (error) {

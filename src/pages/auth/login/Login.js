@@ -5,6 +5,7 @@ import Input from '@components/input/Input';
 import Button from '@components/button/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '@services/api/auth/auth.service';
+import useLocalStorage from '@hooks/useLocalStorage';
 
 export const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,6 +16,8 @@ export const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [alertType, setAlertType] = useState('');
   const [user, setUser] = useState();
+  const [setStoredUsername] = useLocalStorage('username', 'set');
+  const [setLoggedIn] = useLocalStorage('keepLoggedIn', 'set');
   const navigate = useNavigate();
 
   const loginUser = async (event) => {
@@ -25,8 +28,10 @@ export const Login = () => {
         username,
         password
       });
+
       setUser(result.data.user);
-      setKeepLoggedIn(keepLoggedIn);
+      setLoggedIn(keepLoggedIn);
+      setStoredUsername(username);
       setHasError(false);
       setAlertType('alert-success');
     } catch (error) {
