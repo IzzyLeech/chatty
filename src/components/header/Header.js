@@ -1,10 +1,20 @@
 import logo from '@assets/images/logo.svg';
 import { FaCaretDown, FaRegBell, FaRegEnvelope } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
 
 import '@components/header/Header.scss';
 import Avatar from '@components/avatar/Avatar';
+import { Utils } from '@services/utils/utils.service';
 
 const Header = () => {
+  const [environment, setEnvironment] = useState('');
+
+  const backgroundColor = `${environment === 'DEV' ? '#50b5ff' : environment === 'STG' ? '#e9710f' : ''}`;
+
+  useEffect(() => {
+    const env = Utils.appEnvironment();
+    setEnvironment(env);
+  }, []);
   return (
     <>
       <div className="header-nav-wrapper" data-testid="header-wrapper">
@@ -13,7 +23,11 @@ const Header = () => {
             <img src={logo} className="img-fluid" alt="" />
             <div className="app-name">
               Chatty
-              <span className="environment">DEV</span>
+              {environment && (
+                <span className="environment" style={{ backgroundColor: `${backgroundColor}` }}>
+                  {environment}
+                </span>
+              )}
             </div>
           </div>
           <div className="header-menu-toggle">
