@@ -5,7 +5,7 @@ const useDetectOutsideClick = (ref, initialState) => {
 
   useEffect(() => {
     const onClick = (event) => {
-      if (ref.current !== null && !ref.current.contain(event.target)) {
+      if (ref.current !== null && !ref.current.contains(event.target)) {
         setIsActive(!isActive);
       }
     };
