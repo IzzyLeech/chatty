@@ -1,14 +1,25 @@
 import '@components/sidebar/Sidebar.scss';
 import { sideBarItems, fontAwesomeIcons } from '@services/utils/static.data';
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, createSearchParams, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Sidebar = () => {
   const [sidebar, setSidebar] = useState([]);
   const location = useLocation();
+  const { profile } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
   const checkUrl = (name) => {
     return location.pathname.includes(name.toLowerCase());
+  };
+
+  const navigateToPage = (name, url) => {
+    if (name === 'Profile') {
+      console.log(url);
+      url = `${url}/${profile?.username}?${createSearchParams({ id: profile?._id, uId: profile?.uId })}`;
+    }
+    navigate(url);
   };
 
   useEffect(() => {
@@ -20,7 +31,7 @@ const Sidebar = () => {
       <div className="side-menu">
         <ul className="list-unstyled">
           {sidebar.map((data) => (
-            <li key={data.index}>
+            <li onClick={() => navigateToPage(data.name, data.url)} key={data.index}>
               <div data-testid="sidebar-list" className={`sidebar-link ${checkUrl(data.name) ? 'active' : ''}`}>
                 <div className="menu-icon">{fontAwesomeIcons[data.iconName]}</div>
                 <div className="menu-link">
