@@ -1,5 +1,5 @@
 import logo from '@assets/images/logo.svg';
-import { FaCaretDown, FaRegBell, FaRegEnvelope } from 'react-icons/fa';
+import { FaCaretDown, FaCaretUp, FaRegBell, FaRegEnvelope } from 'react-icons/fa';
 import { useState, useEffect, useRef } from 'react';
 
 import '@components/header/Header.scss';
@@ -8,15 +8,24 @@ import { Utils } from '@services/utils/utils.service';
 import useDetectOutsideClick from '@hooks/useDetectOutsideClick';
 import MessageSidebar from '@components/message-sidebar/MessageSidebar';
 import { useSelector } from 'react-redux';
+import Dropdown from '@components/dropdown/Dropdown';
 
 const Header = () => {
   const { profile } = useSelector((state) => state.user);
+
   const [environment, setEnvironment] = useState('');
   const messageRef = useRef(null);
+  const notificationRef = useRef(null);
+  const settingsRef = useRef(null);
   const [isMessageActive, setIsMessageActive] = useDetectOutsideClick(messageRef, false);
+  const [isNotificationActive, setIsNotificationActive] = useDetectOutsideClick(notificationRef, false);
+  const [isSettingsActive, setIsSettingsActive] = useDetectOutsideClick(settingsRef, false);
 
   const backgroundColor = `${environment === 'DEV' ? '#50b5ff' : environment === 'STG' ? '#e9710f' : ''}`;
   const openChatPage = () => {};
+  const onMarkAsRead = () => {};
+  const onDeleteNotification = () => {};
+  const onLogout = () => {};
 
   useEffect(() => {
     const env = Utils.appEnvironment();
@@ -51,22 +60,38 @@ const Header = () => {
             <li
               className="header-nav-item active-item"
               onClick={() => {
-                setIsMessageActive(true);
+                setIsMessageActive(false);
+                setIsNotificationActive(true);
+                setIsSettingsActive(false);
               }}
             >
               <span className="header-list-name">
                 <FaRegBell className="header-list-icon" />
                 <span className="bg-danger-dots dots" data-testid="notification-dots"></span>
               </span>
-              <ul className="dropdown-ul">
-                <li className="dropdown-li"></li>
-              </ul>
+              {isNotificationActive && (
+                <ul className="dropdown-ul" ref={notificationRef}>
+                  <li className="dropdown-li">
+                    <Dropdown
+                      height={300}
+                      style={{ right: '250px', top: '20px' }}
+                      data={[]}
+                      notificationCount={0}
+                      title="Notifications"
+                      onMarkAsRead={onMarkAsRead}
+                      onDeleteNotification={onDeleteNotification}
+                    />
+                  </li>
+                </ul>
+              )}
               &nbsp;
             </li>
             <li
               className="header-nav-item active-item"
               onClick={() => {
                 setIsMessageActive(true);
+                setIsNotificationActive(false);
+                setIsSettingsActive(false);
               }}
             >
               <span className="header-list-name">
@@ -75,14 +100,46 @@ const Header = () => {
               </span>
               &nbsp;
             </li>
-            <li className="header-nav-item">
+            <li
+              className="header-nav-item"
+              onClick={() => {
+                setIsMessageActive(false);
+                setIsNotificationActive(false);
+                setIsSettingsActive(true);
+              }}
+            >
               <span className="header-list-name profile-image">
-                <Avatar name="Danny" bgColor="red" textColor="#ffffff" size={40} avatarSrc="" />
+                <Avatar
+                  name={profile?.username}
+                  bgColor={profile?.avatarColor}
+                  textColor="#ffffff"
+                  size={40}
+                  avatarSrc={profile?.profilePicture}
+                />
               </span>
               <span className="header-list-name profile-name">
-                Danny
-                <FaCaretDown className="header-list-icon caret" />
+                {profile?.username}
+                {!isSettingsActive ? (
+                  <FaCaretDown className="header-list-icon caret" />
+                ) : (
+                  <FaCaretUp className="header-list-icon caret" />
+                )}
               </span>
+              {isSettingsActive && (
+                <ul className="dropdown-ul" ref={settingsRef}>
+                  <li className="dropdown-li">
+                    <Dropdown
+                      height={300}
+                      style={{ right: '150px', top: '40px' }}
+                      data={[]}
+                      notificationCount={0}
+                      title="Settings"
+                      onLogout={onLogout}
+                      onNavigate={() => {}}
+                    />
+                  </li>
+                </ul>
+              )}
               <ul className="dropdown-ul">
                 <li className="dropdown-li"></li>
               </ul>
