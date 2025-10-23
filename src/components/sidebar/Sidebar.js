@@ -16,7 +16,6 @@ const Sidebar = () => {
 
   const navigateToPage = (name, url) => {
     if (name === 'Profile') {
-      console.log(url);
       url = `${url}/${profile?.username}?${createSearchParams({ id: profile?._id, uId: profile?.uId })}`;
     }
     navigate(url);
