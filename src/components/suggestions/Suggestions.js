@@ -9,7 +9,7 @@ import '@components/suggestions/Suggestions.scss';
 const Suggestions = () => {
   const [users, setUsers] = useState([]);
   const { suggestions } = useSelector((state) => state);
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUsers(suggestions?.users);

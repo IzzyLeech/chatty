@@ -165,9 +165,6 @@ const Header = () => {
                   </li>
                 </ul>
               )}
-              <ul className="dropdown-ul">
-                <li className="dropdown-li"></li>
-              </ul>
             </li>
           </ul>
         </div>

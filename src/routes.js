@@ -9,6 +9,8 @@ import Following from '@pages/social/following/Following';
 import Photos from '@pages/social/photos/Photos';
 import Notifications from '@pages/social/notifications/Notifications';
 import Profile from '@pages/social/profile/Profile';
+import ProtectedRoute from '@pages/ProtectedRoutes';
+import Error from '@pages/error/Error';
 
 export const AppRouter = () => {
   const elements = useRoutes([
@@ -25,8 +27,16 @@ export const AppRouter = () => {
       element: <ResetPassword />
     },
     {
+      path: '*',
+      element: <Error />
+    },
+    {
       path: '/app/social',
-      element: <Social />,
+      element: (
+        <ProtectedRoute>
+          <Social />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: 'streams',
