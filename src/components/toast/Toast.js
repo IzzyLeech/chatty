@@ -14,7 +14,7 @@ const Toast = (props) => {
     setList([...listData.current]);
     if (!listData.current.length) {
       list.length = 0;
-      // dispatch notification
+      
     }
   }, [list]);
 
