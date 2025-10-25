@@ -30,7 +30,7 @@ const Sidebar = () => {
       <div className="side-menu">
         <ul className="list-unstyled">
           {sidebar.map((data) => (
-            <li onClick={() => navigateToPage(data.name, data.url)} key={data.index}>
+            <li key={data.index} onClick={() => navigateToPage(data.name, data.url)}>
               <div data-testid="sidebar-list" className={`sidebar-link ${checkUrl(data.name) ? 'active' : ''}`}>
                 <div className="menu-icon">{fontAwesomeIcons[data.iconName]}</div>
                 <div className="menu-link">
