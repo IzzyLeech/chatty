@@ -44,7 +44,7 @@
       background: var(--white-1);
 
       &-container {
-        overflow-y: scroll;
+        // overflow-y: scroll;
 
         .social-sub-card {
           padding: 5px 15px;
@@ -55,8 +55,8 @@
           grid-template-columns: max-content 1fr max-content;
           grid-template-rows: 1fr;
           width: 100%;
-          overflow-x: hidden;
-          overflow-y: scroll;
+          // overflow-x: hidden;
+          // overflow-y: scroll;
           cursor: pointer;
 
           .content-avatar {
