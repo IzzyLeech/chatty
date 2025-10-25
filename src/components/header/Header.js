@@ -102,7 +102,7 @@ const Header = () => {
     setEnvironment(env);
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     NotificationUtils.socketIONotification(profile, notifications, setNotifications, 'header', setNotificationCount);
   }, [profile, notifications, dispatch]);
 

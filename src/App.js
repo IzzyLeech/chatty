@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 // import warningIcon from '@assets/images/warning.svg';
 
 export const App = () => {
-  const { notifications } = useSelector((state) => state);
+  const notifications = useSelector((state) => state.notifications);
 
   useEffect(() => {
     socketService.setupSocketConnection();

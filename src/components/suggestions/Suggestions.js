@@ -8,12 +8,12 @@ import '@components/suggestions/Suggestions.scss';
 
 const Suggestions = () => {
   const [users, setUsers] = useState([]);
-  const { suggestions } = useSelector((state) => state);
+  const suggestions = useSelector((state) => state.suggestions);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUsers(suggestions?.users);
-  }, [suggestions, users]);
+    setUsers(suggestions?.users || []);
+  }, [suggestions]);
   return (
     <div className="suggestions-list-container" data-testid="suggestions-container">
       <div className="suggestions-header">
