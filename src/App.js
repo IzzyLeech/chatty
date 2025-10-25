@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import '@root/App.scss';
 import { AppRouter } from './routes';
 import { useEffect } from 'react';
-import { socketServive } from '@services/socket/socket.service';
+import { socketService } from '@services/socket/socket.service';
 import Toast from '@components/toast/Toast';
 import { useSelector } from 'react-redux';
 // import checkIcon from '@assets/images/check.svg';
@@ -12,10 +12,10 @@ import { useSelector } from 'react-redux';
 // import warningIcon from '@assets/images/warning.svg';
 
 export const App = () => {
-  const {notifications} = useSelector((state) => state);
+  const { notifications } = useSelector((state) => state);
 
   useEffect(() => {
-    socketServive.setupSocketConnection();
+    socketService.setupSocketConnection();
   }, []);
 
   return (

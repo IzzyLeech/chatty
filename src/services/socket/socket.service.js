@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-class SocketServive {
+class SocketService {
   socket;
 
   setupSocketConnection() {
@@ -28,4 +28,4 @@ class SocketServive {
   }
 }
 
-export const socketServive = new SocketServive();
+export const socketService = new SocketService();

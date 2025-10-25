@@ -2,35 +2,25 @@ import PropTypes from 'prop-types';
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import '@components/toast/Toast.scss';
-import { Utils } from '@services/utils/utils.service';
-import { useDispatch } from 'react-redux';
 
 const Toast = (props) => {
   const { toastList, position, autoDelete, autoDeleteTime = 2000 } = props;
   const [list, setList] = useState(toastList);
   const listData = useRef([]);
-  const dispatch = useDispatch();
 
   const deleteToast = useCallback(() => {
     listData.current = cloneDeep(list);
     listData.current.splice(0, 1);
     setList([...listData.current]);
-    if (!listData.current.length) {
-      list.length = 0;
-      Utils.dispatchNotification(dispatch);
-    }
-  }, [list, dispatch]);
+  }, [list]);
 
   useEffect(() => {
-    setList([...toastList]);
+    Promise.resolve().then(() => setList([...toastList]));
   }, [toastList]);
 
   useEffect(() => {
-    const tick = () => {
-      deleteToast();
-    };
     if (autoDelete && toastList.length && list.length) {
-      const interval = setInterval(tick, autoDeleteTime);
+      const interval = setInterval(deleteToast, autoDeleteTime);
       return () => clearInterval(interval);
     }
   }, [toastList, autoDelete, autoDeleteTime, list, deleteToast]);
