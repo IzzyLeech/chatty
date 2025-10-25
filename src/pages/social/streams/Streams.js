@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import '@pages/social/streams/Streams.scss';
 import Suggestions from '@components/suggestions/Suggestions';

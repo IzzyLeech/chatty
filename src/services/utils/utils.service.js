@@ -1,6 +1,8 @@
 import { floor, random } from 'lodash';
 import { avatarColors } from '@services/utils/static.data';
 import { addUser, clearUser } from '@redux/reducers/user/user.reducer';
+import { addNotification, clearNotification } from '@redux/reducers/notifications/notification.reducer';
+const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
 export class Utils {
   static avatarColor() {
@@ -30,12 +32,12 @@ export class Utils {
   static dispatchUser(result, pageReload, dispatch, setUser) {
     pageReload(true);
     dispatch(addUser({ token: result.data.token, profile: result.data.user }));
-    setUser(result.data);
+    setUser(result.data.user);
   }
 
   static clearStore({ dispatch, deleteStorageUsername, deleteSessionPageReload, setLoggedIn }) {
     dispatch(clearUser());
-    // dispatch clear notification action
+    dispatch(clearNotification());
     deleteStorageUsername();
     deleteSessionPageReload();
     setLoggedIn(false);
@@ -61,6 +63,14 @@ export class Utils {
     return items;
   }
 
+  static appImageUrl(version, id) {
+    if (typeof version === 'string' && typeof id === 'string') {
+      version = version.replace(/['"]+/g, '');
+      id = id.replace(/['"]+/g, '');
+    }
+    return `https://res.cloudinary.com/${cloudName}/image/upload/v${version}/${id}`;
+  }
+
   static generateString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = ' ';
@@ -69,5 +79,13 @@ export class Utils {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  }
+
+  static dispatchNotification(message, type, dispatch) {
+    dispatch(addNotification({ message, type }));
+  }
+
+  static dispatchClearNotification(dispatch) {
+    dispatch(clearNotification());
   }
 }
