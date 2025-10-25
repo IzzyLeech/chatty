@@ -7,11 +7,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { notificationsService } from '@services/api/notifications/notification.service';
 import useEffectOnce from '@hooks/useEffectOnce';
 import { NotificationUtils } from '@services/utils/notification-utils.service';
+import NotificationPreview from '@components/dialog/NotificationPreview';
 
 const Notifications = () => {
   const { profile } = useSelector((state) => state.user);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notificationDialogContent, setNotificationDialogContent] = useState({
+    post: '',
+    imgUrl: '',
+    reaction: '',
+    senderName: ''
+  });
   const dispatch = useDispatch();
 
   const getUserNotifications = async () => {
@@ -27,7 +34,7 @@ const Notifications = () => {
 
   const markAsRead = async (notification) => {
     try {
-      NotificationUtils.markMessageAsRead(notification?._id);
+      NotificationUtils.markMessageAsRead(notification?._id, notification, setNotificationDialogContent);
     } catch (error) {
       Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
@@ -53,6 +60,25 @@ const Notifications = () => {
 
   return (
     <>
+      {notificationDialogContent?.senderName && (
+        <NotificationPreview
+          title="Your post"
+          post={notificationDialogContent?.post}
+          imgUrl={notificationDialogContent?.imgUrl}
+          comment={notificationDialogContent?.comment}
+          reaction={notificationDialogContent?.reaction}
+          senderName={notificationDialogContent?.senderName}
+          secondButtonText="Close"
+          secondBtnHandler={() => {
+            setNotificationDialogContent({
+              post: '',
+              imgUrl: '',
+              reaction: '',
+              senderName: ''
+            });
+          }}
+        />
+      )}
       <div className="notifications-container">
         <div className="notifications">Notifications</div>
         {notifications.length > 0 && (

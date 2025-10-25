@@ -2,6 +2,7 @@ import { floor, random } from 'lodash';
 import { avatarColors } from '@services/utils/static.data';
 import { addUser, clearUser } from '@redux/reducers/user/user.reducer';
 import { addNotification, clearNotification } from '@redux/reducers/notifications/notification.reducer';
+const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
 export class Utils {
   static avatarColor() {
@@ -60,6 +61,14 @@ export class Utils {
     items.push(item);
     setSettings(items);
     return items;
+  }
+
+  static appImageUrl(version, id) {
+    if (typeof version === 'string' && typeof id === 'string') {
+      version = version.replace(/['"]+/g, '');
+      id = id.replace(/['"]+/g, '');
+    }
+    return `https://res.cloudinary.com/${cloudName}/image/upload/v${version}/${id}`;
   }
 
   static generateString(length) {
