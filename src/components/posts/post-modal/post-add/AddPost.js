@@ -28,6 +28,8 @@ const AddPost = () => {
   const [disable, setDisable] = useState(false);
   const [selectedPostImage, setSelectedPostImage] = useState();
   const counterRef = useRef(null);
+  const inputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const dispatch = useDispatch();
   const maxNumberOfCharacters = 100;
 
@@ -54,13 +56,28 @@ const AddPost = () => {
     }
   };
 
+  const clearImage = () => {
+    PostUtitls.clearImage(
+      postData,
+      '',
+      inputRef,
+      dispatch,
+      setSelectedPostImage,
+      setPostImage,
+      setDisable,
+      setPostData
+    );
+  };
+
   useEffect(() => {
     if (gifUrl) {
-      setSelectedPostImage(gifUrl);
+      setPostImage(gifUrl);
+      PostUtitls.postInputData(imageInputRef, postData, '', setPostData);
     } else if (image) {
       setPostImage(image);
+      PostUtitls.postInputData(imageInputRef, postData, '', setPostData);
     }
-  }, [gifUrl, image]);
+  }, [gifUrl, image, postData]);
   return (
     <>
       <PostWrapper>
@@ -93,6 +110,10 @@ const AddPost = () => {
                       <div
                         data-testid="editable"
                         name="post"
+                        ref={(el) => {
+                          inputRef.current = el;
+                          inputRef?.current?.focus();
+                        }}
                         contentEditable={true}
                         onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
                         onKeyDown={onKeyDown}
@@ -107,17 +128,24 @@ const AddPost = () => {
 
             {postImage && (
               <>
-                <div className="modal-box-image form">
+                <div className="modal-box-image-form">
                   <div
                     data-testid="post-editable"
                     name="post"
+                    ref={(el) => {
+                      imageInputRef.current = el;
+                      imageInputRef?.current?.focus();
+                    }}
                     contentEditable={true}
                     data-placeholder="What's on your mind?"
                     className="post-input flex-item"
+                    onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
+                    onKeyDown={onKeyDown}
                   ></div>
                   <div className="image-display">
-                    <div className="image-delete-btn" data-testid="image-delete-btn"></div>
-                    <FaTimes />
+                    <div className="image-delete-btn" data-testid="image-delete-btn" onClick={() => clearImage()}>
+                      <FaTimes />
+                    </div>
                     <img data-testid="post-image" className="post-image" src={`${postImage}`} alt="" />
                   </div>
                 </div>
