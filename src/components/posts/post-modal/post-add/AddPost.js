@@ -25,8 +25,10 @@ const AddPost = () => {
     image: ''
   });
   const [disable, setDisable] = useState(false);
+  const [selectedPostImage, setSelectedPostImage] = useState();
 
   const selectBackground = (bgColor) => {
+    console.log(selectedPostImage);
     PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData, setDisable);
   };
   return (
@@ -105,7 +107,7 @@ const AddPost = () => {
               <span className="char_count">{allowedNumberOfCharacters}</span>
             </div>
 
-            <ModalBoxSelection />
+            <ModalBoxSelection setSelectedPostImage={setSelectedPostImage}/>
 
             <div className="modal-box-button" data-testid="post-button">
               <Button label="Create Post" className="post-button" disabled={disable} />
