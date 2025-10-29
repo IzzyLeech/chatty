@@ -1,6 +1,6 @@
 import PostWrapper from '@components/posts/modal-wrappers/post-wrapper/PostWrapper';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import '@components/posts/post-modal/post-add/AddPost.scss';
 import ModalBoxContent from '@components/posts/post-modal/modal-box-content/ModalBoxContent';
 import { FaTimes } from 'react-icons/fa';
@@ -11,8 +11,9 @@ import { PostUtitls } from '@services/utils/post-utils-service';
 
 const AddPost = () => {
   const { gifModalIsOpen } = useSelector((state) => state.modal);
+  const { gifUrl, image } = useSelector((state) => state.post);
   const [loading] = useState(false);
-  const [postImage] = useState('');
+  const [postImage, setPostImage] = useState('');
   const [allowedNumberOfCharacters] = useState('100/100');
   const [textAreaBackground, setTextareaBackground] = useState('#ffffff');
   const [postData, setPostData] = useState({
@@ -26,11 +27,40 @@ const AddPost = () => {
   });
   const [disable, setDisable] = useState(false);
   const [selectedPostImage, setSelectedPostImage] = useState();
+  const counterRef = useRef(null);
+  const dispatch = useDispatch();
+  const maxNumberOfCharacters = 100;
 
   const selectBackground = (bgColor) => {
     console.log(selectedPostImage);
     PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData, setDisable);
   };
+
+  const postInputEditable = (event, textContent) => {
+    const currentTextLength = event.target.textContent.length;
+    const counter = maxNumberOfCharacters - currentTextLength;
+    counterRef.current.textContent = `${counter}/100`;
+    PostUtitls.postInputEditable(textContent, postData, setPostData, setDisable);
+  };
+
+  const closePostModal = () => {
+    PostUtitls.closePostModal(dispatch);
+  };
+
+  const onKeyDown = (event) => {
+    const currentTextLength = event.target.textContent.length;
+    if (currentTextLength === maxNumberOfCharacters && event.keyCode !== 8) {
+      event.preventDefault();
+    }
+  };
+
+  useEffect(() => {
+    if (gifUrl) {
+      setSelectedPostImage(gifUrl);
+    } else if (image) {
+      setPostImage(image);
+    }
+  }, [gifUrl, image]);
   return (
     <>
       <PostWrapper>
@@ -44,7 +74,9 @@ const AddPost = () => {
             )}
             <div className="modal-box-header">
               <h2>Create Post</h2>
-              <button className="modal-box-header-cancel">X</button>
+              <button className="modal-box-header-cancel" onClick={() => closePostModal()}>
+                X
+              </button>
             </div>
             <hr />
             <ModalBoxContent />
@@ -62,6 +94,8 @@ const AddPost = () => {
                         data-testid="editable"
                         name="post"
                         contentEditable={true}
+                        onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
+                        onKeyDown={onKeyDown}
                         data-placeholder="What's on your mind?"
                         className={`editable flex-item ${textAreaBackground !== '#ffffff' ? 'textInputColor' : ''}`}
                       ></div>
@@ -84,7 +118,7 @@ const AddPost = () => {
                   <div className="image-display">
                     <div className="image-delete-btn" data-testid="image-delete-btn"></div>
                     <FaTimes />
-                    <img data-testid="post-image" className="post-image" src="" alt="" />
+                    <img data-testid="post-image" className="post-image" src={`${postImage}`} alt="" />
                   </div>
                 </div>
               </>
@@ -104,10 +138,12 @@ const AddPost = () => {
               </ul>
             </div>
             <div className="char-count-row">
-              <span className="char_count">{allowedNumberOfCharacters}</span>
+              <span className="char_count" data-testid="allowed-number" ref={counterRef}>
+                {allowedNumberOfCharacters}
+              </span>
             </div>
 
-            <ModalBoxSelection setSelectedPostImage={setSelectedPostImage}/>
+            <ModalBoxSelection setSelectedPostImage={setSelectedPostImage} />
 
             <div className="modal-box-button" data-testid="post-button">
               <Button label="Create Post" className="post-button" disabled={disable} />
