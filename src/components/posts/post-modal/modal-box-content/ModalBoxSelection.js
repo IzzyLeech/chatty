@@ -11,12 +11,12 @@ import PropTypes from 'prop-types';
 import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 
 const ModalBoxSelection = ({ setSelectedPostImage }) => {
-  const { feelingIsOpen } = useSelector((state) => state.modal);
+  const { feelingsIsOpen } = useSelector((state) => state.modal);
   const { gifModalIsOpen } = useSelector((state) => state.modal);
   const { post } = useSelector((state) => state.post);
   const feelingsRef = useRef(null);
   const fileInputRef = useRef();
-  const [toogleFeelings, setToggleFeelings] = useDetectOutsideClick(feelingsRef, feelingIsOpen);
+  const [toogleFeelings, setToggleFeelings] = useDetectOutsideClick(feelingsRef, feelingsIsOpen);
   const dispatch = useDispatch();
 
   const fileInputClicked = () => {
