@@ -7,6 +7,7 @@ import '@components/giphy/Giphy.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePostItem } from '@redux/reducers/post/post.reducer';
 import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
+import Spinner from '@components/spinner/Spinner';
 
 const Giphy = () => {
   const { gifModalIsOpen } = useSelector((state) => state.modal);
@@ -39,6 +40,8 @@ const Giphy = () => {
               handleChange={(e) => GiphyUtils.searchGifs(e.target.value, setGifs, setLoading)}
             />
           </div>
+
+          {loading && <Spinner />}
 
           <ul className="giphy-container-picker-list" data-testid="unorderedList">
             {gifs.map((gif, index) => (
