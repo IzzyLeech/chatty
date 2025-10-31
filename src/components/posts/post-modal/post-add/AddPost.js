@@ -8,14 +8,19 @@ import { bgColors } from '@services/utils/static.data';
 import ModalBoxSelection from '../modal-box-content/ModalBoxSelection';
 import Button from '@components/button/Button';
 import { PostUtitls } from '@services/utils/post-utils-service';
-import { toggleGifModal } from '@redux/reducers/modal/modal.reducer';
+import { closeModal, toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import Giphy from '@components/giphy/Giphy';
 import PropTypes from 'prop-types';
+import { ImageUtils } from '@services/utils/image-utils.service';
+import { postService } from '@services/api/post/post.service';
+import Spinner from '@components/spinner/Spinner';
 
 const AddPost = ({ selectedImage }) => {
-  const { gifModalIsOpen } = useSelector((state) => state.modal);
-  const { gifUrl, image } = useSelector((state) => state.post);
-  const [loading] = useState(false);
+  const { gifModalIsOpen, feeling } = useSelector((state) => state.modal);
+  const { gifUrl, image, privacy } = useSelector((state) => state.post);
+  const { profile } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
+  const [apiResponse, setApiResponse] = useState('');
   const [postImage, setPostImage] = useState('');
   const [allowedNumberOfCharacters] = useState('100/100');
   const [textAreaBackground, setTextareaBackground] = useState('#ffffff');
@@ -37,7 +42,6 @@ const AddPost = ({ selectedImage }) => {
   const maxNumberOfCharacters = 100;
 
   const selectBackground = (bgColor) => {
-    console.log(selectedPostImage);
     console.log(selectedImage);
     PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData, setDisable);
   };
@@ -73,6 +77,63 @@ const AddPost = ({ selectedImage }) => {
     );
   };
 
+  const createPost = async () => {
+    setLoading(!loading);
+    setDisable(!disable);
+    try {
+      if (Object.keys(feeling).length) {
+        postData.feelings = feeling?.name;
+      }
+      postData.privacy = privacy || 'Public';
+      postData.gifUrl = gifUrl;
+      postData.profilePicture = profile?.profilePicture;
+      if (selectedPostImage || selectedImage) {
+        let result = '';
+        if (selectedPostImage) {
+          result = await ImageUtils.readAsBase64(selectedPostImage);
+        }
+
+        if (selectedImage) {
+          result = await ImageUtils.readAsBase64(selectedImage);
+        }
+        const response = await PostUtitls.sendPostWithImageRequest(
+          result,
+          postData,
+          imageInputRef,
+          setApiResponse,
+          setLoading,
+          setDisable,
+          dispatch
+        );
+        if (response && response?.data?.message) {
+          PostUtitls.closePostModal(dispatch);
+        }
+      } else {
+        const response = await postService.createPost(postData);
+        if (response) {
+          setApiResponse('success');
+          setLoading(false);
+          PostUtitls.closePostModal(dispatch);
+        }
+      }
+    } catch (error) {
+      PostUtitls.dispatchNotification(
+        error.response.data.message,
+        'error',
+        setApiResponse,
+        setLoading,
+        setDisable,
+        dispatch
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (!loading && apiResponse === 'success') {
+      dispatch(closeModal());
+    }
+  }, [loading, dispatch, apiResponse]);
+
   useEffect(() => {
     if (gifUrl) {
       setPostImage(gifUrl);
@@ -87,10 +148,16 @@ const AddPost = ({ selectedImage }) => {
       <PostWrapper>
         <div></div>
         {!gifModalIsOpen && (
-          <div className="modal-box">
+          <div
+            className="modal-box"
+            style={{
+              height: selectedPostImage || gifUrl || image || postData?.gifUrl || postData?.image ? '700px' : 'auto'
+            }}
+          >
             {loading && (
               <div className="modal-box-loading" data-testid="modal-box-load">
                 <span>Posting...</span>
+                <Spinner />
               </div>
             )}
             <div className="modal-box-header">
@@ -178,7 +245,7 @@ const AddPost = ({ selectedImage }) => {
             <ModalBoxSelection setSelectedPostImage={setSelectedPostImage} />
 
             <div className="modal-box-button" data-testid="post-button">
-              <Button label="Create Post" className="post-button" disabled={disable} />
+              <Button label="Create Post" className="post-button" disabled={disable} handleClick={createPost} />
             </div>
           </div>
         )}
