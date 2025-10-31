@@ -1,0 +1,37 @@
+import PropTypes from 'prop-types';
+import '@components/posts/Posts.scss';
+import { useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { Utils } from '@services/utils/utils.service';
+import Post from '@components/posts/post/Post';
+
+const Posts = ({ allPosts, userFollowing, postLoading }) => {
+  const { profile } = useSelector((state) => state.user);
+  const [posts, setPosts] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    console.log(profile, following, loading);
+    setPosts(allPosts);
+    setFollowing(userFollowing);
+    setLoading(postLoading);
+  }, [allPosts, userFollowing, postLoading]);
+  return (
+    <div className="posts-container" data-testid="posts">
+      {posts.map((post) => (
+        <div key={Utils.generateString(10)} data-testid="post-item">
+          <Post post={post} showIcons={false} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+Posts.propTypes = {
+  allPosts: PropTypes.array.isRequired,
+  userFollowing: PropTypes.array.isRequired,
+  postLoading: PropTypes.bool
+};
+
+export default Posts;
