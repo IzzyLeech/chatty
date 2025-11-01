@@ -33,7 +33,7 @@ const AddPost = ({ selectedImage }) => {
     profilePicture: '',
     image: ''
   });
-  const [disable, setDisable] = useState(false);
+  const [disable, setDisable] = useState(true);
   const [selectedPostImage, setSelectedPostImage] = useState();
   const counterRef = useRef(null);
   const inputRef = useRef(null);
@@ -43,14 +43,15 @@ const AddPost = ({ selectedImage }) => {
 
   const selectBackground = (bgColor) => {
     console.log(selectedImage);
-    PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData, setDisable);
+    PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData);
   };
 
   const postInputEditable = (event, textContent) => {
     const currentTextLength = event.target.textContent.length;
     const counter = maxNumberOfCharacters - currentTextLength;
     counterRef.current.textContent = `${counter}/100`;
-    PostUtitls.postInputEditable(textContent, postData, setPostData, setDisable);
+    setDisable(currentTextLength <= 0 && !postImage);
+    PostUtitls.postInputEditable(textContent, postData, setPostData);
   };
 
   const closePostModal = () => {
@@ -65,16 +66,7 @@ const AddPost = ({ selectedImage }) => {
   };
 
   const clearImage = () => {
-    PostUtitls.clearImage(
-      postData,
-      '',
-      inputRef,
-      dispatch,
-      setSelectedPostImage,
-      setPostImage,
-      setDisable,
-      setPostData
-    );
+    PostUtitls.clearImage(postData, '', inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
   };
 
   const createPost = async () => {
@@ -132,7 +124,8 @@ const AddPost = ({ selectedImage }) => {
     if (!loading && apiResponse === 'success') {
       dispatch(closeModal());
     }
-  }, [loading, dispatch, apiResponse]);
+    setDisable(postData.post.length <= 0 && !postImage);
+  }, [loading, dispatch, apiResponse, postData, postImage]);
 
   useEffect(() => {
     if (gifUrl) {

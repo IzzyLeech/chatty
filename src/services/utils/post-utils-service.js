@@ -4,11 +4,10 @@ import { postService } from 'src/services/api/post/post.service.js';
 import { Utils } from '@services/utils/utils.service';
 
 export class PostUtitls {
-  static selectBackgound(bgColor, postData, setTextAreaBackground, setPostData, setDisable) {
+  static selectBackgound(bgColor, postData, setTextAreaBackground, setPostData) {
     postData.bgColor = bgColor;
     setTextAreaBackground(bgColor);
     setPostData(postData);
-    setDisable(false);
   }
 
   static postInputEditable(textContent, postData, setPostData) {
@@ -21,12 +20,11 @@ export class PostUtitls {
     dispatch(clearPost());
   }
 
-  static clearImage(postData, post, inputRef, dispatch, setSelectedPostImage, setPostImage, setDisable, setPostData) {
+  static clearImage(postData, post, inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData) {
     postData.gifUrl = '';
     postData.image = '';
     setSelectedPostImage(null);
     setPostImage('');
-    setDisable(false);
     setTimeout(() => {
       if (inputRef?.current) {
         inputRef.current.textContent = !post ? postData.post : post;
@@ -51,10 +49,9 @@ export class PostUtitls {
     });
   }
 
-  static dispatchNotification(message, type, setApiResponse, setLoading, setDisable, dispatch) {
+  static dispatchNotification(message, type, setApiResponse, setLoading, dispatch) {
     setApiResponse(type);
     setLoading(false);
-    setDisable(false);
     Utils.dispatchNotification(message, type, dispatch);
   }
 
