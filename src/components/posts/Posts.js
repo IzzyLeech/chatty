@@ -5,18 +5,18 @@ import { useState, useEffect } from 'react';
 import { Utils } from '@services/utils/utils.service';
 import Post from '@components/posts/post/Post';
 
-const Posts = ({ allPosts, userFollowing, postLoading }) => {
+const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const { profile } = useSelector((state) => state.user);
   const [posts, setPosts] = useState([]);
   const [following, setFollowing] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(profile, following, loading);
+    // console.log(profile, following, loading);
     setPosts(allPosts);
     setFollowing(userFollowing);
-    setLoading(postLoading);
-  }, [allPosts, userFollowing, postLoading]);
+    setLoading(postsLoading);
+  }, [allPosts, userFollowing, postsLoading]);
   return (
     <div className="posts-container" data-testid="posts">
       {posts.map((post) => (
@@ -31,7 +31,7 @@ const Posts = ({ allPosts, userFollowing, postLoading }) => {
 Posts.propTypes = {
   allPosts: PropTypes.array.isRequired,
   userFollowing: PropTypes.array.isRequired,
-  postLoading: PropTypes.bool
+  postsLoading: PropTypes.bool
 };
 
 export default Posts;
