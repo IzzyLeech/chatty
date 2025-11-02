@@ -2,6 +2,8 @@ import { closeModal } from '@redux/reducers/modal/modal.reducer';
 import { clearPost, updatePostItem } from '@redux/reducers/post/post.reducer';
 import { postService } from 'src/services/api/post/post.service.js';
 import { Utils } from '@services/utils/utils.service';
+import { cloneDeep, find, findIndex, remove } from 'lodash';
+import { socketService } from '@services/socket/socket.service';
 
 export class PostUtils {
   static selectBackgound(bgColor, postData, setTextAreaBackground, setPostData) {
@@ -105,5 +107,51 @@ export class PostUtils {
     range.collapse(false);
     selection.addRange(range);
     element.focus();
+  }
+
+  static socketIOPost(posts, setPosts) {
+    posts = cloneDeep(posts);
+    socketService?.socket?.on('add post', (post) => {
+      posts = [post, ...posts];
+      setPosts(posts);
+    });
+
+    socketService?.socket?.on('update post', (post) => {
+      PostUtils.updateSingelePost(posts, post, setPosts);
+    });
+
+    socketService?.socket?.on('delete', (postId) => {
+      const index = findIndex(posts, (postData) => postData._id === postId);
+      if (index > -1) {
+        posts = cloneDeep(posts);
+        remove(posts, { _id: postId });
+        setPosts(posts);
+      }
+    });
+
+    socketService?.socket?.on('update like', (reactionData) => {
+      const postData = find(posts, (post) => post._id === reactionData?.postId);
+      if (postData) {
+        postData.reactions = reactionData.postReactions;
+        PostUtils.updateSingelePost(posts, postData, setPosts);
+      }
+    });
+
+    socketService?.socket?.on('update comment', (commentData) => {
+      const postData = find(posts, (post) => post._id === commentData?.postId);
+      if (postData) {
+        postData.commentCount = commentData.commentCount;
+        PostUtils.updateSingelePost(posts, postData, setPosts);
+      }
+    });
+  }
+
+  static updateSingelePost(posts, post, setPosts) {
+    posts = cloneDeep(posts);
+    const index = findIndex(posts, ['_id', post?._id]);
+    if (index > -1) {
+      posts.splice(index, 1, post);
+      setPosts(posts);
+    }
   }
 }
