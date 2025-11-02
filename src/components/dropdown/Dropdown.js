@@ -17,6 +17,8 @@ const Dropdown = ({
   onLogout,
   onNavigate
 }) => {
+  const shouldScroll = data.length > 6;
+
   return (
     <div className="social-dropdown" style={style} data-testid="dropdown">
       <div className="social-card">
@@ -34,7 +36,10 @@ const Dropdown = ({
             <div
               data-testid="info-container"
               className="social-card-body-info-container"
-              style={{ maxHeight: `${height}px` }}
+              style={{
+                maxHeight: shouldScroll ? `${height}px` : 'auto',
+                overflowY: shouldScroll ? 'auto' : 'visible'
+              }}
             >
               {data.map((item) => (
                 <div className="social-sub-card" key={Utils.generateString(10)}>

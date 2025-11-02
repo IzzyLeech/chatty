@@ -1,0 +1,24 @@
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* ✅ ensures full-screen grid */
+  z-index: 1050;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: "modal";
+
+  place-items: center; /* ✅ centers children vertically + horizontally */
+}
+
+.modal-bg {
+  grid-area: modal;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: var(--white-11);
+  opacity: 0.6;
+}
