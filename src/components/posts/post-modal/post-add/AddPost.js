@@ -7,7 +7,7 @@ import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 import { bgColors } from '@services/utils/static.data';
 import ModalBoxSelection from '../modal-box-content/ModalBoxSelection';
 import Button from '@components/button/Button';
-import { PostUtitls } from '@services/utils/post-utils-service';
+import { PostUtils } from '@services/utils/post-utils-service';
 import { closeModal, toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import Giphy from '@components/giphy/Giphy';
 import PropTypes from 'prop-types';
@@ -43,7 +43,7 @@ const AddPost = ({ selectedImage }) => {
 
   const selectBackground = (bgColor) => {
     console.log(selectedImage);
-    PostUtitls.selectBackgound(bgColor, postData, setTextareaBackground, setPostData);
+    PostUtils.selectBackgound(bgColor, postData, setTextareaBackground, setPostData);
   };
 
   const postInputEditable = (event, textContent) => {
@@ -51,11 +51,11 @@ const AddPost = ({ selectedImage }) => {
     const counter = maxNumberOfCharacters - currentTextLength;
     counterRef.current.textContent = `${counter}/100`;
     setDisable(currentTextLength <= 0 && !postImage);
-    PostUtitls.postInputEditable(textContent, postData, setPostData);
+    PostUtils.postInputEditable(textContent, postData, setPostData);
   };
 
   const closePostModal = () => {
-    PostUtitls.closePostModal(dispatch);
+    PostUtils.closePostModal(dispatch);
   };
 
   const onKeyDown = (event) => {
@@ -66,7 +66,7 @@ const AddPost = ({ selectedImage }) => {
   };
 
   const clearImage = () => {
-    PostUtitls.clearImage(postData, '', inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
+    PostUtils.clearImage(postData, '', inputRef, dispatch, setSelectedPostImage, setPostImage, setPostData);
   };
 
   const createPost = async () => {
@@ -88,7 +88,7 @@ const AddPost = ({ selectedImage }) => {
         if (selectedImage) {
           result = await ImageUtils.readAsBase64(selectedImage);
         }
-        const response = await PostUtitls.sendPostWithImageRequest(
+        const response = await PostUtils.sendPostWithImageRequest(
           result,
           postData,
           imageInputRef,
@@ -98,18 +98,18 @@ const AddPost = ({ selectedImage }) => {
           dispatch
         );
         if (response && response?.data?.message) {
-          PostUtitls.closePostModal(dispatch);
+          PostUtils.closePostModal(dispatch);
         }
       } else {
         const response = await postService.createPost(postData);
         if (response) {
           setApiResponse('success');
           setLoading(false);
-          PostUtitls.closePostModal(dispatch);
+          PostUtils.closePostModal(dispatch);
         }
       }
     } catch (error) {
-      PostUtitls.dispatchNotification(
+      PostUtils.dispatchNotification(
         error.response.data.message,
         'error',
         setApiResponse,
@@ -121,6 +121,10 @@ const AddPost = ({ selectedImage }) => {
   };
 
   useEffect(() => {
+    PostUtils.positionCursor('editable');
+  }, []);
+
+  useEffect(() => {
     if (!loading && apiResponse === 'success') {
       dispatch(closeModal());
     }
@@ -130,10 +134,10 @@ const AddPost = ({ selectedImage }) => {
   useEffect(() => {
     if (gifUrl) {
       setPostImage(gifUrl);
-      PostUtitls.postInputData(imageInputRef, postData, '', setPostData);
+      PostUtils.postInputData(imageInputRef, postData, '', setPostData);
     } else if (image) {
       setPostImage(image);
-      PostUtitls.postInputData(imageInputRef, postData, '', setPostData);
+      PostUtils.postInputData(imageInputRef, postData, '', setPostData);
     }
   }, [gifUrl, image, postData]);
   return (
@@ -173,6 +177,7 @@ const AddPost = ({ selectedImage }) => {
                     <div className="flex-row">
                       <div
                         data-testid="editable"
+                        id="editable"
                         name="post"
                         ref={(el) => {
                           inputRef.current = el;
@@ -182,7 +187,8 @@ const AddPost = ({ selectedImage }) => {
                         onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
                         onKeyDown={onKeyDown}
                         data-placeholder="What's on your mind?"
-                        className={`editable flex-item ${textAreaBackground !== '#ffffff' ? 'textInputColor' : ''}`}
+                        className={`editable flex-item ${textAreaBackground !== '#ffffff' ? 'textInputColor' : ''} 
+                        ${postData.post.length === 0 && textAreaBackground !== '#ffffff' ? 'defaultInputTextColor' : ''}`}
                       ></div>
                     </div>
                   </div>
@@ -205,6 +211,7 @@ const AddPost = ({ selectedImage }) => {
                     className="post-input flex-item"
                     onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
                     onKeyDown={onKeyDown}
+                    id="editable"
                   ></div>
                   <div className="image-display">
                     <div className="image-delete-btn" data-testid="image-delete-btn" onClick={() => clearImage()}>
@@ -224,7 +231,10 @@ const AddPost = ({ selectedImage }) => {
                     key={index}
                     className={`${color === '#ffffff' ? 'whiteColorBorder' : ''}`}
                     style={{ backgroundColor: `${color}` }}
-                    onClick={() => selectBackground(color)}
+                    onClick={() => {
+                      PostUtils.positionCursor('editable');
+                      selectBackground(color);
+                    }}
                   ></li>
                 ))}
               </ul>

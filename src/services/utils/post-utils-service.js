@@ -3,7 +3,7 @@ import { clearPost, updatePostItem } from '@redux/reducers/post/post.reducer';
 import { postService } from 'src/services/api/post/post.service.js';
 import { Utils } from '@services/utils/utils.service';
 
-export class PostUtitls {
+export class PostUtils {
   static selectBackgound(bgColor, postData, setTextAreaBackground, setPostData) {
     postData.bgColor = bgColor;
     setTextAreaBackground(bgColor);
@@ -33,6 +33,7 @@ export class PostUtitls {
         }
         setPostData(postData);
       }
+      PostUtils.positionCursor('editable');
     });
     dispatch(updatePostItem({ gifUrl: '', image: '', imgId: '', imgVersion: '' }));
   }
@@ -45,6 +46,7 @@ export class PostUtitls {
           postData.post = post;
         }
         setPostData(postData);
+        PostUtils.positionCursor('editable');
       }
     });
   }
@@ -75,7 +77,7 @@ export class PostUtitls {
         setLoading(false);
       }
     } catch (error) {
-      PostUtitls.dispatchNotification(
+      PostUtils.dispatchNotification(
         error.response.data.message,
         'error',
         setApiResponse,
@@ -92,5 +94,16 @@ export class PostUtitls {
     const isFollower =
       post?.privacy === 'Followers' && Utils.checkIfUserIsFollowed(following, post?.userId, profile?._id);
     return isPrivate || isPublic || isFollower;
+  }
+
+  static positionCursor(elementId) {
+    const element = document.getElementById(`${elementId}`);
+    const selection = window.getSelection();
+    const range = document.createRange();
+    selection.removeAllRanges();
+    range.selectNodeContents(element);
+    range.collapse(false);
+    selection.addRange(range);
+    element.focus();
   }
 }

@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { Utils } from '@services/utils/utils.service';
 import Post from '@components/posts/post/Post';
-import { PostUtitls } from '@services/utils/post-utils-service';
+import { PostUtils } from '@services/utils/post-utils-service';
 
 const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const { profile } = useSelector((state) => state.user);
@@ -13,7 +13,6 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // console.log(profile, following, loading);
     setPosts(allPosts);
     setFollowing(userFollowing);
     setLoading(postsLoading);
@@ -24,7 +23,7 @@ const Posts = ({ allPosts, userFollowing, postsLoading }) => {
         <div key={Utils.generateString(10)} data-testid="post-item">
           {(!Utils.checkIfUserIsFollowed(profile?.blockedBy, post?.userId) || post?.userId === profile?._id) && (
             <>
-              {PostUtitls.checkPrivacy(post, profile, following) && (
+              {PostUtils.checkPrivacy(post, profile, following) && (
                 <>
                   <Post post={post} showIcons={false} loading={loading} />
                 </>
