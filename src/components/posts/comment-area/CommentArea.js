@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { FaRegCommentAlt } from 'react-icons/fa';
 import '@components/posts/comment-area/CommentArea.scss';
 import like from '@assets/reactions/like.png';
+import Reactions from '@components/posts/reactions/Reactions';
 
-const CommentArea = ({post}) => {
+const CommentArea = ({ post }) => {
+  const addReactionPost = async (reaction) => {};
   return (
     <div className="comment-area" data-testid="comment-area">
       <div className="like-icon reactions">
@@ -19,7 +21,9 @@ const CommentArea = ({post}) => {
                   </div> */}
           </div>
         </div>
-        <div className="reactions-container app-reactions">Reactions</div>
+        <div className="reactions-container app-reactions">
+          <Reactions handleClick={addReactionPost} />
+        </div>
       </div>
       <div className="comment-block">
         <span className="comments-text">
