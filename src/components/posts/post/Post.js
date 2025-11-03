@@ -5,6 +5,7 @@ import '@components/posts/post/Post.scss';
 import { timeAgo } from '@services/utils/timeago.utils';
 import { feelingsList, privacyList } from '@services/utils/static.data';
 import { find } from 'lodash';
+import PostCommentSection from '../post-comment-section/PostCommentSection';
 
 const Post = ({ post, showIcons }) => {
   const getFeeling = (name) => {
@@ -83,6 +84,7 @@ const Post = ({ post, showIcons }) => {
               </div>
             )}
             {(post?.reactions.length > 0 || post?.commentsCount > 0) && <hr />}
+            <PostCommentSection post={post} />
           </div>
         </div>
       </div>
