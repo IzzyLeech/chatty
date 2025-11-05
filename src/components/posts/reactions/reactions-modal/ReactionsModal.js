@@ -1,7 +1,7 @@
 import ReactionWrapper from '@components/posts/modal-wrappers/reaction-wrapper/ReactionWrapper';
 import React, { useState } from 'react';
 import ReactionList from '@components/posts/reactions/reactions-modal/reaction-list/ReactionList';
-import { reactionsMap } from '@services/utils/static.data';
+import { reactionsColor, reactionsMap } from '@services/utils/static.data';
 import { Utils } from '@services/utils/utils.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@services/api/post/post.service';
@@ -32,7 +32,7 @@ const ReactionsModal = () => {
     }
   };
 
-  const closeReactionModal = () => {
+  const closeReactionsModal = () => {
     dispatch(closeModal());
     dispatch(clearPost());
   };
@@ -49,7 +49,7 @@ const ReactionsModal = () => {
     const exist = some(reactionsOfPost, (reaction) => reaction.type === type);
     const filteredReactions = exist ? filter(reactionsOfPost, (reaction) => reaction.type === type) : [];
     setPostReactions(filteredReactions);
-    setReactionColor(reactionColor[type]);
+    setReactionColor(reactionsColor[type]);
   };
 
   useEffectOnce(() => {
@@ -59,17 +59,17 @@ const ReactionsModal = () => {
 
   return (
     <>
-      <ReactionWrapper closeModal={closeReactionModal}>
+      <ReactionWrapper closeModal={closeReactionsModal}>
         <div className="modal-reactions-header-tabs">
           <ul className="modal-reactions-header-tabs-list">
             <li className={`${activeViewAllTab ? 'activeViewAllTab' : 'all'}`} onClick={viewAll}>
               All
             </li>
-            {formattedReactions.map((reaction, index) => (
+            {formattedReactions.map((reaction) => (
               <li
-                key={index}
+                key={Utils.generateString(10)}
                 className={`${reaction.type === reactionType ? 'activeTab' : ''}`}
-                style={{ color: `${reactionType.type === reactionType ? reactionColor : ''}` }}
+                style={{ color: `${reaction.type === reactionType ? reactionColor : ''}` }}
                 onClick={() => reactionList(reaction?.type)}
               >
                 <img src={`${reactionsMap[reaction?.type]}`} alt="" />
@@ -78,6 +78,7 @@ const ReactionsModal = () => {
             ))}
           </ul>
         </div>
+
         <div className="modal-reactions-list">
           <ReactionList postReactions={postReactions} />
         </div>
@@ -85,5 +86,4 @@ const ReactionsModal = () => {
     </>
   );
 };
-
 export default ReactionsModal;
