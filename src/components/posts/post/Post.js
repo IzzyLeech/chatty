@@ -8,6 +8,7 @@ import { find } from 'lodash';
 import PostCommentSection from '../post-comment-section/PostCommentSection';
 import { useSelector } from 'react-redux';
 import ReactionsModal from '@components/posts/reactions/reactions-modal/ReactionsModal';
+import { Utils } from '@services/utils/utils.service';
 
 const Post = ({ post, showIcons }) => {
   const { reactionsModalIsOpen } = useSelector((state) => state.modal);
@@ -79,7 +80,7 @@ const Post = ({ post, showIcons }) => {
 
               {post?.imgId && !post?.gifUrl && post.bgColor === '#ffffff' && (
                 <div data-testid="post-image" className="image-display-flex">
-                  <img className="post-image" src="" alt="" />
+                  <img className="post-image" src={`${Utils.getImage(post.imgId, post.imgVersion)}`} alt="" />
                 </div>
               )}
 

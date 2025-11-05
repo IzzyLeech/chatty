@@ -124,4 +124,8 @@ export class Utils {
       return millify(data);
     }
   }
+
+  static getImage(imageId, imageVersion) {
+    return imageId && imageVersion ? this.appImageUrl(imageVersion, imageId) : '';
+  }
 }
