@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 import { FaSpinner } from 'react-icons/fa';
 import '@components/posts/reactions/reactions-and-comments-display/ReactionsAndCommentDisplay.scss';
 import { Utils } from '@services/utils/utils.service';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@services/api/post/post.service';
 import { reactionsMap } from '@services/utils/static.data';
+import { updatePostItem } from '@redux/reducers/post/post.reducer';
+import { toggleReactionsModal } from '@redux/reducers/modal/modal.reducer';
 
 const ReactionsAndCommentDisplay = ({ post }) => {
   const dispatch = useDispatch();
+  const { reactionsModalIsOpen } = useSelector((state) => state.modal);
   const [postReactions, setPostReactions] = useState([]);
   const [reactions, setReactions] = useState([]);
 
@@ -26,6 +29,11 @@ const ReactionsAndCommentDisplay = ({ post }) => {
       const result = reactions.map((item) => item.value).reduce((prev, next) => prev + next);
       return Utils.shortenLargeNumbers(result);
     }
+  };
+
+  const openReactionsComponent = () => {
+    dispatch(updatePostItem(post));
+    dispatch(toggleReactionsModal(!reactionsModalIsOpen));
   };
 
   useEffect(() => {
@@ -75,6 +83,7 @@ const ReactionsAndCommentDisplay = ({ post }) => {
             data-testid="reactions-count"
             className="tooltip-container reactions-count"
             onMouseEnter={getPostReactions}
+            onClick={() => openReactionsComponent()}
           >
             {sumAllReactions(reactions)}
             <div className="tooltip-container-text tooltip-container-likes-bottom" data-testid="tooltip-container">
