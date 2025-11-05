@@ -7,7 +7,7 @@ const PostCommentSection = ({ post }) => {
   return (
     <div data-testid="comment-section">
       <ReactionsAndCommentDisplay post={post} />
-      <CommentArea psot={post} />
+      <CommentArea post={post} />
     </div>
   );
 };
