@@ -10,12 +10,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@services/api/post/post.service';
 import { addReactions } from '@redux/reducers/post/user-post-reaction.reducer';
 import { socketService } from '@services/socket/socket.service';
+import useLocalStorage from '@hooks/useLocalStorage';
+import { clearPost, updatePostItem } from '@redux/reducers/post/post.reducer';
 
 const CommentArea = ({ post }) => {
   let { reactions } = useSelector((state) => state.userPostReactions);
   const [userSelectedReaction, setUserSelectedReaction] = useState('');
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.user);
+  const selectedPostId = useLocalStorage('selectedPostId', 'get');
+  const [setSelectedPostId] = useLocalStorage('selectedPostId', 'set');
 
   const selectedUserReaction = useCallback(
     (postReactions) => {
@@ -25,6 +29,25 @@ const CommentArea = ({ post }) => {
     },
     [post]
   );
+
+  const toggleCommentInput = () => {
+    if (!selectedPostId) {
+      setSelectedPostId(post?._id);
+      dispatch(updatePostItem(post));
+    } else {
+      removeSelectedPostId();
+    }
+  };
+
+  const removeSelectedPostId = () => {
+    if (selectedPostId === post?._id) {
+      setSelectedPostId('');
+      dispatch(clearPost());
+    } else {
+      setSelectedPostId(post?._id);
+      dispatch(updatePostItem(post));
+    }
+  };
 
   const addReactionPost = async (reaction) => {
     try {
@@ -149,7 +172,7 @@ const CommentArea = ({ post }) => {
           <Reactions handleClick={addReactionPost} />
         </div>
       </div>
-      <div className="comment-block">
+      <div className="comment-block" onClick={toggleCommentInput}>
         <span className="comments-text">
           <FaRegCommentAlt className="comment-alt" /> <span>Comments</span>
         </span>

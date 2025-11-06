@@ -15,7 +15,7 @@ const CommentInputBox = ({ post }) => {
   const dispatch = useDispatch();
 
   const submitComment = async (event) => {
-    event.PreventDefauly();
+    event.preventDefault();
     try {
       post = cloneDeep(post);
       post.commentsCount += 1;
@@ -45,21 +45,19 @@ const CommentInputBox = ({ post }) => {
       <form className="comment-form" onSubmit={submitComment}>
         <Input
           ref={commentInputRef}
-          name="commnet"
+          name="comment"
           type="text"
           value={comment}
           labelText=""
-          className="commment-input"
+          className="comment-input"
           placeholder="Write a comment..."
-          handeleChnage={(event) => setComment(event.target.value)}
+          handleChange={(event) => setComment(event.target.value)}
         />
       </form>
     </div>
   );
 };
-
 CommentInputBox.propTypes = {
   post: PropTypes.object
 };
-
 export default CommentInputBox;

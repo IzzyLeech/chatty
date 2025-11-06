@@ -14,7 +14,6 @@ const ReactionsAndCommentDisplay = ({ post }) => {
   const { reactionsModalIsOpen } = useSelector((state) => state.modal);
   const [postReactions, setPostReactions] = useState([]);
   const [reactions, setReactions] = useState([]);
-
   const getPostReactions = async () => {
     try {
       const response = await postService.getPostReactions(post?._id);
@@ -47,7 +46,7 @@ const ReactionsAndCommentDisplay = ({ post }) => {
           <div className="likes-block-icons reactions-icon-display">
             {reactions.length > 0 &&
               reactions.map((reaction) => (
-                <div className="tooltip-container" key={Utils.generateString(10)}>
+                <div className="tooltip-container" key={reaction?.type}>
                   <img
                     data-testid="reaction-img"
                     className="reaction-img"
@@ -64,7 +63,7 @@ const ReactionsAndCommentDisplay = ({ post }) => {
                       {postReactions.length === 0 && <FaSpinner className="circle-notch" />}
                       {postReactions.length && (
                         <>
-                          {postReactions.map((postReaction) => (
+                          {postReactions.slice(0, 19).map((postReaction) => (
                             <div key={Utils.generateString(10)}>
                               {postReaction?.type === reaction?.type && (
                                 <span key={postReaction?._id}>{postReaction?.username}</span>
@@ -91,8 +90,8 @@ const ReactionsAndCommentDisplay = ({ post }) => {
                 {postReactions.length === 0 && <FaSpinner className="circle-notch" />}
                 {postReactions.length && (
                   <>
-                    {postReactions.map((postReaction) => (
-                      <span key={Utils.generateString(10)}>{postReaction?.username}</span>
+                    {postReactions.slice(0, 19).map((reaction) => (
+                      <span key={Utils.generateString(10)}>{reaction?.username}</span>
                     ))}
                     {postReactions.length > 20 && <span>and {postReactions.length - 20} others...</span>}
                   </>
