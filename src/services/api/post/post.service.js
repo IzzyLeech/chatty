@@ -51,5 +51,10 @@ class PostService {
     const response = await axios.get(`/post/commentsnames/${postId}`);
     return response;
   }
+
+  async getPostComments(postId) {
+    const response = await axios.get(`/post/comments/${postId}`);
+    return response;
+  }
 }
 export const postService = new PostService();

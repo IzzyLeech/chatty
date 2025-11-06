@@ -7,11 +7,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postService } from '@services/api/post/post.service';
 import { reactionsMap } from '@services/utils/static.data';
 import { updatePostItem } from '@redux/reducers/post/post.reducer';
-import { toggleReactionsModal } from '@redux/reducers/modal/modal.reducer';
+import { toggleCommentsModal, toggleReactionsModal } from '@redux/reducers/modal/modal.reducer';
 
 const ReactionsAndCommentDisplay = ({ post }) => {
   const dispatch = useDispatch();
-  const { reactionsModalIsOpen } = useSelector((state) => state.modal);
+  const { reactionsModalIsOpen, commentsModalIsOpen } = useSelector((state) => state.modal);
   const [postReactions, setPostReactions] = useState([]);
   const [reactions, setReactions] = useState([]);
   const [postCommentNames, setPostCommentNames] = useState([]);
@@ -44,6 +44,11 @@ const ReactionsAndCommentDisplay = ({ post }) => {
   const openReactionsComponent = () => {
     dispatch(updatePostItem(post));
     dispatch(toggleReactionsModal(!reactionsModalIsOpen));
+  };
+
+  const openCommentsComponent = () => {
+    dispatch(updatePostItem(post));
+    dispatch(toggleCommentsModal(!commentsModalIsOpen));
   };
 
   useEffect(() => {
@@ -112,7 +117,11 @@ const ReactionsAndCommentDisplay = ({ post }) => {
           </span>
         </div>
       </div>
-      <div className="comment tooltip-container" data-testid="comment-container">
+      <div
+        className="comment tooltip-container"
+        data-testid="comment-container"
+        onClick={() => openCommentsComponent()}
+      >
         {post?.commentsCount > 0 && (
           <span onMouseEnter={getPostCommentsNames} data-testid="comment-count">
             {Utils.shortenLargeNumbers(post?.commentsCount)} {`${post?.commentsCount === 1 ? 'Comment' : 'Comments'}`}
