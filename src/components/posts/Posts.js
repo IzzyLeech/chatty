@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { Utils } from '@services/utils/utils.service';
 import Post from '@components/posts/post/Post';
-import { PostUtils } from '@services/utils/post-utils.service';
 import PostSkeleton from '@components/posts/post/PostSkeleton';
+import { PostUtils } from '@services/utils/post-utils-service';
 
 const Posts = ({ allPosts, userFollowing, postsLoading }) => {
   const { profile } = useSelector((state) => state.user);
