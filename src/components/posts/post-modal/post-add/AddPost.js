@@ -40,7 +40,6 @@ const AddPost = ({ selectedImage }) => {
   const imageInputRef = useRef(null);
   const dispatch = useDispatch();
   const maxNumberOfCharacters = 100;
-
   const selectBackground = (bgColor) => {
     PostUtils.selectBackgound(bgColor, postData, setTextareaBackground, setPostData);
   };
@@ -96,6 +95,10 @@ const AddPost = ({ selectedImage }) => {
           setDisable,
           dispatch
         );
+
+        console.log('🧩 Full image post response:', response);
+        console.log('📨 response.data:', response?.data);
+        console.log('💬 response.data.message:', response?.data?.message);
         if (response && response?.data?.message) {
           PostUtils.closePostModal(dispatch);
         }

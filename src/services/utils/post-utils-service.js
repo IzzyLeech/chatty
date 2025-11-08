@@ -134,6 +134,7 @@ export class PostUtils {
       if (response) {
         setApiResponse('success');
         setLoading(false);
+        return response;
       }
     } catch (error) {
       PostUtils.dispatchNotification(
@@ -227,7 +228,7 @@ export class PostUtils {
       PostUtils.updateSingelePost(posts, post, setPosts);
     });
 
-    socketService?.socket?.on('delete', (postId) => {
+    socketService?.socket?.on('delete post', (postId) => {
       const index = findIndex(posts, (postData) => postData._id === postId);
       if (index > -1) {
         posts = cloneDeep(posts);
