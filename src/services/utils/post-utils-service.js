@@ -29,7 +29,7 @@ export class PostUtils {
     setPostImage('');
     setTimeout(() => {
       if (inputRef?.current) {
-        inputRef.current.textContent = !post ? postData.post : post;
+        inputRef.current.textContent = !post ? postData?.post : post;
         if (post) {
           postData.post = post;
         }
@@ -57,6 +57,55 @@ export class PostUtils {
     setApiResponse(type);
     setLoading(false);
     Utils.dispatchNotification(message, type, dispatch);
+  }
+
+  static async sendPostWithFileRequest(type, postData, imageInputRef, setApiResponse, setLoading, dispatch) {
+    try {
+      if (imageInputRef?.current) {
+        imageInputRef.current.textContent = postData.post;
+      }
+      const response =
+        type === 'image'
+          ? await postService.createPostWithImage(postData)
+          : await postService.createPostWithVideo(postData);
+      if (response) {
+        setApiResponse('success');
+        setLoading(false);
+      }
+    } catch (error) {
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
+    }
+  }
+
+  static async sendUpdatePostWithFileRequest(type, postId, postData, setApiResponse, setLoading, dispatch) {
+    try {
+      const response =
+        type === 'image'
+          ? await postService.updatePostWithImage(postId, postData)
+          : await postService.updatePostWithVideo(postId, postData);
+      if (response) {
+        PostUtils.dispatchNotification(response.data.message, 'success', setApiResponse, setLoading, dispatch);
+        setTimeout(() => {
+          setApiResponse('success');
+          setLoading(false);
+        }, 3000);
+        PostUtils.closePostModal(dispatch);
+      }
+    } catch (error) {
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
+    }
+  }
+
+  static async sendUpdatePostRequest(postId, postData, setApiResponse, setLoading, dispatch) {
+    const response = await postService.updatePost(postId, postData);
+    if (response) {
+      PostUtils.dispatchNotification(response.data.message, 'success', setApiResponse, setLoading, dispatch);
+      setTimeout(() => {
+        setApiResponse('success');
+        setLoading(false);
+      }, 3000);
+      PostUtils.closePostModal(dispatch);
+    }
   }
 
   static async sendPostWithImageRequest(

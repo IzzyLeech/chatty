@@ -9,7 +9,7 @@ import Posts from '@components/posts/Posts';
 import { Utils } from '@services/utils/utils.service';
 import { postService } from '@services/api/post/post.service';
 import { getPosts } from '@redux/api/posts';
-import { uniqBy } from 'lodash';
+import { orderBy, uniqBy } from 'lodash';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils-service';
 import useLocalStorage from '@hooks/useLocalStorage';
@@ -32,7 +32,6 @@ const Streams = () => {
 
   function fetchPostData() {
     let pageNum = currentPage;
-    console.log(currentPage, Math.round(totalPostsCount / PAGE_SIZE), totalPostsCount / PAGE_SIZE);
     if (currentPage <= Math.round(totalPostsCount / PAGE_SIZE)) {
       pageNum += 1;
       setCurrentPage(pageNum);
@@ -46,7 +45,8 @@ const Streams = () => {
       if (response.data.posts.length > 0) {
         appPosts = [...posts, ...response.data.posts];
         const allPosts = uniqBy(appPosts, '_id');
-        setPosts(allPosts);
+        const orderedPosts = orderBy(allPosts, ['createdAt'], ['desc']);
+        setPosts(orderedPosts);
       }
       setLoading(false);
     } catch (error) {
@@ -75,7 +75,8 @@ const Streams = () => {
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
-    setPosts(allPosts?.posts);
+    const orderedPosts = orderBy(allPosts?.posts, ['createdAt'], ['desc']);
+    setPosts(orderedPosts);
     setTotalPostsCount(allPosts?.totalPostsCount);
   }, [allPosts]);
 
