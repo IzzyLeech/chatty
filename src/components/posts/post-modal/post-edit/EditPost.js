@@ -11,7 +11,6 @@ import { PostUtils } from '@services/utils/post-utils-service';
 import { addPostFeeling, closeModal, toggleGifModal } from '@redux/reducers/modal/modal.reducer';
 import Giphy from '@components/giphy/Giphy';
 import { ImageUtils } from '@services/utils/image-utils.service';
-import { postService } from '@services/api/post/post.service';
 import Spinner from '@components/spinner/Spinner';
 import { find } from 'lodash';
 import { Utils } from '@services/utils/utils.service';
@@ -122,44 +121,22 @@ const EditPost = () => {
     }
   }, [post, postData, getFeeling, postInputData]);
 
-  const createPost = async () => {
+  const updatePost = async () => {
     setLoading(!loading);
     setDisable(!disable);
     try {
       if (Object.keys(feeling).length) {
         postData.feelings = feeling?.name;
       }
-      // postData.privacy = privacy || 'Public';
-      // postData.gifUrl = gifUrl;
+      if (postData.gifUrl || (postData.imgId && postData.imgVersion)) {
+        postData.bgColor = '#ffffff';
+      }
+      postData.privacy = post?.privacy || 'Public';
       postData.profilePicture = profile?.profilePicture;
       if (selectedPostImage) {
-        let result = '';
-        if (selectedPostImage) {
-          result = await ImageUtils.readAsBase64(selectedPostImage);
-        }
-
-        // if (selectedImage) {
-        //   result = await ImageUtils.readAsBase64(selectedImage);
-        // }
-        const response = await PostUtils.sendPostWithImageRequest(
-          result,
-          postData,
-          imageInputRef,
-          setApiResponse,
-          setLoading,
-          setDisable,
-          dispatch
-        );
-        if (response && response?.data?.message) {
-          PostUtils.closePostModal(dispatch);
-        }
+        updatePostWithImage();
       } else {
-        const response = await postService.createPost(postData);
-        if (response) {
-          setApiResponse('success');
-          setLoading(false);
-          PostUtils.closePostModal(dispatch);
-        }
+        updateUserPost();
       }
     } catch (error) {
       PostUtils.dispatchNotification(
@@ -173,27 +150,77 @@ const EditPost = () => {
     }
   };
 
+  const updateUserPost = async () => {
+    const response = await PostUtils.sendUpdatePostRequest(
+      post?._id,
+      postData,
+      setApiResponse,
+      setLoading,
+      setDisable,
+      dispatch
+    );
+    if (response && response?.data?.message) {
+      PostUtils.closePostModal(dispatch);
+    }
+  };
+
+  const updatePostWithImage = async (image) => {
+    const result = await ImageUtils.readAsBase64(image);
+    const response = await PostUtils.sendUpdatePostWithImageRequest(
+      result,
+      post?._id,
+      postData,
+      setApiResponse,
+      setLoading,
+      setDisable,
+      dispatch
+    );
+    if (response && response?.data?.message) {
+      PostUtils.closePostModal(dispatch);
+    }
+  };
+
   useEffect(() => {
-    PostUtils.positionCursor('editable');
+    const id = setTimeout(() => {
+      const el = document.getElementById('editable');
+      if (el && el.textContent?.length > 0) {
+        PostUtils.positionCursor('editable');
+      } else {
+        setTimeout(() => PostUtils.positionCursor('editable'), 150);
+      }
+    }, 50);
+    return () => clearTimeout(id);
   }, [post]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (imageInputRef?.current && imageInputRef?.current.textContent.length) {
+        counterRef.current.textContent = `${maxNumberOfCharacters - imageInputRef?.current.textContent.length}/100`;
+      } else if (inputRef?.current && inputRef?.current.textContent.length) {
+        counterRef.current.textContent = `${maxNumberOfCharacters - inputRef?.current.textContent.length}/100`;
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (!loading && apiResponse === 'success') {
       dispatch(closeModal());
     }
-    setDisable(postData.post.length <= 0 && !postImage);
-  }, [loading, dispatch, apiResponse, postData, postImage]);
+    setDisable(post?.post.length <= 0 && !postImage);
+  }, [loading, dispatch, apiResponse, post, postImage]);
 
   useEffect(() => {
-    // if (gifUrl) {
-    //   setPostImage(gifUrl);
-    //   PostUtils.postInputData(imageInputRef, postData, '', setPostData);
-    // } else if (image) {
-    //   setPostImage(image);
-    //   PostUtils.postInputData(imageInputRef, postData, '', setPostData);
-    // }
+    if (post?.gifUrl) {
+      postData.image = '';
+      setSelectedPostImage(null);
+      setPostImage(post?.gifUrl);
+      PostUtils.postInputData(imageInputRef, postData, post?.post, setPostData);
+    } else if (post?.image) {
+      setPostImage(post?.image);
+      PostUtils.postInputData(imageInputRef, postData, post?.post, setPostData);
+    }
     editableFields();
-  }, [editableFields]);
+  }, [editableFields, post, postData]);
   return (
     <>
       <PostWrapper>
@@ -202,7 +229,7 @@ const EditPost = () => {
           <div
             className="modal-box"
             style={{
-              height: selectedPostImage || postData?.gifUrl || postData?.image ? '700px' : 'auto'
+              height: selectedPostImage || postData?.gifUrl || post?.imgId ? '700px' : 'auto'
             }}
           >
             {loading && (
@@ -241,8 +268,9 @@ const EditPost = () => {
                         onInput={(e) => postInputEditable(e, e.currentTarget.textContent)}
                         onKeyDown={onKeyDown}
                         data-placeholder="What's on your mind?"
-                        className={`editable flex-item ${textAreaBackground !== '#ffffff' ? 'textInputColor' : ''} 
-                        ${postData.post.length === 0 && textAreaBackground !== '#ffffff' ? 'defaultInputTextColor' : ''}`}
+                        className={`editable flex-item ${textAreaBackground !== '#ffffff' ? 'textInputColor' : ''} ${
+                          postData.post.length === 0 && textAreaBackground !== '#ffffff' ? 'defaultInputTextColor' : ''
+                        }`}
                       ></div>
                     </div>
                   </div>
@@ -302,7 +330,7 @@ const EditPost = () => {
             <ModalBoxSelection setSelectedPostImage={setSelectedPostImage} />
 
             <div className="modal-box-button" data-testid="post-button">
-              <Button label="Create Post" className="post-button" disabled={disable} handleClick={createPost} />
+              <Button label="Update Post" className="post-button" disabled={disable} handleClick={updatePost} />
             </div>
           </div>
         )}
