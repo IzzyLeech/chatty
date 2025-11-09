@@ -95,10 +95,6 @@ const AddPost = ({ selectedImage }) => {
           setDisable,
           dispatch
         );
-
-        console.log('🧩 Full image post response:', response);
-        console.log('📨 response.data:', response?.data);
-        console.log('💬 response.data.message:', response?.data?.message);
         if (response && response?.data?.message) {
           PostUtils.closePostModal(dispatch);
         }
@@ -111,14 +107,7 @@ const AddPost = ({ selectedImage }) => {
         }
       }
     } catch (error) {
-      PostUtils.dispatchNotification(
-        error.response.data.message,
-        'error',
-        setApiResponse,
-        setLoading,
-        setDisable,
-        dispatch
-      );
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   };
 

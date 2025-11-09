@@ -134,49 +134,20 @@ const EditPost = () => {
       postData.privacy = post?.privacy || 'Public';
       postData.profilePicture = profile?.profilePicture;
       if (selectedPostImage) {
-        updatePostWithImage();
+        const result = await ImageUtils.readAsBase64(selectedPostImage);
+        await PostUtils.sendUpdatePostWithImageRequest(
+          result,
+          post?._id,
+          postData,
+          setApiResponse,
+          setLoading,
+          dispatch
+        );
       } else {
-        updateUserPost();
+        await PostUtils.sendUpdatePostRequest(post?._id, postData, setApiResponse, setLoading, dispatch);
       }
     } catch (error) {
-      PostUtils.dispatchNotification(
-        error.response.data.message,
-        'error',
-        setApiResponse,
-        setLoading,
-        setDisable,
-        dispatch
-      );
-    }
-  };
-
-  const updateUserPost = async () => {
-    const response = await PostUtils.sendUpdatePostRequest(
-      post?._id,
-      postData,
-      setApiResponse,
-      setLoading,
-      setDisable,
-      dispatch
-    );
-    if (response && response?.data?.message) {
-      PostUtils.closePostModal(dispatch);
-    }
-  };
-
-  const updatePostWithImage = async (image) => {
-    const result = await ImageUtils.readAsBase64(image);
-    const response = await PostUtils.sendUpdatePostWithImageRequest(
-      result,
-      post?._id,
-      postData,
-      setApiResponse,
-      setLoading,
-      setDisable,
-      dispatch
-    );
-    if (response && response?.data?.message) {
-      PostUtils.closePostModal(dispatch);
+      PostUtils.dispatchNotification(error.response.data.message, 'error', setApiResponse, setLoading, dispatch);
     }
   };
 
@@ -221,6 +192,7 @@ const EditPost = () => {
     }
     editableFields();
   }, [editableFields, post, postData]);
+
   return (
     <>
       <PostWrapper>
