@@ -1,27 +1,32 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
 import Button from '@components/button/Button';
-
-const CardElementButtons = (isChecked, btnTextOne, btnTextTwo, onClickBtnOne, onClickBtnTwo, onNavigateToProfile) => {
+import PropTypes from 'prop-types';
+import { Fragment } from 'react';
+const CardElementButtons = ({
+  isChecked,
+  btnTextOne,
+  btnTextTwo,
+  onClickBtnOne,
+  onClickBtnTwo,
+  onNavigateToProfile
+}) => {
   return (
-    <div className="card-elemrnt-buttons" data-testid="card-element-buttons">
+    <div className="card-element-buttons" data-testid="card-element-buttons">
       <Fragment>
         {!isChecked && (
-          <Button label={btnTextOne} className="card-element-buttons-btn button" handleClcik={onClickBtnOne} />
+          <Button label={btnTextOne} className="card-element-buttons-btn button" handleClick={onClickBtnOne} />
         )}
-        {!isChecked && (
+        {isChecked && (
           <Button
             label={btnTextTwo}
             className="card-element-buttons-btn button isUserFollowed"
-            handleClcik={onClickBtnTwo}
+            handleClick={onClickBtnTwo}
           />
         )}
       </Fragment>
-      <Button label="Profile" className="card-element-buttons-btn-button" handleClick={onNavigateToProfile} />
+      <Button label="Profile" className="card-element-buttons-btn button" handleClick={onNavigateToProfile} />
     </div>
   );
 };
-
 CardElementButtons.propTypes = {
   isChecked: PropTypes.bool,
   btnTextOne: PropTypes.string,
@@ -30,5 +35,4 @@ CardElementButtons.propTypes = {
   onClickBtnTwo: PropTypes.func,
   onNavigateToProfile: PropTypes.func
 };
-
 export default CardElementButtons;
