@@ -1,4 +1,6 @@
 import Avatar from '@components/avatar/Avatar';
+import CardElementButtons from '@components/card-element/CardElementButtons';
+import CardElementStats from '@components/card-element/CardElementStats';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import '@pages/social/people/People.scss';
 import { Utils } from '@services/utils/utils.service';
@@ -40,6 +42,19 @@ const People = () => {
                   </div>
                 </div>
               </div>
+              <CardElementStats
+                postsCount={data?.postsCount}
+                followersCount={data?.followersCount}
+                followingCount={data?.followingCount}
+              />
+              <CardElementButtons
+                isChecked={Utils.checkIfUserIsFollowed([], data?._id)}
+                btnTextOne="Follow"
+                btnTextTwo="Unfollow"
+                onClickBtnOne={() => {}}
+                onClickBtnTwo={() => {}}
+                onNavigateToProfile={() => {}}
+              />
             </div>;
           })}
         </div>
