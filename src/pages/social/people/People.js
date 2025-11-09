@@ -5,28 +5,31 @@ import useEffectOnce from '@hooks/useEffectOnce';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import '@pages/social/people/People.scss';
 import { userService } from '@services/api/user/user.service';
+import { ProfileUtils } from '@services/utils/profile-utils.service';
 import { Utils } from '@services/utils/utils.service';
 import { uniqBy } from 'lodash';
 import { useCallback, useRef, useState } from 'react';
 import { FaCircle } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const People = () => {
   const [users, setUsers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalUserSCount, setTotalUserCount] = useState(0);
+  const [totalUsersCount, setTotalUsersCount] = useState(0);
   const bodyRef = useRef(null);
   const bottomLineRef = useRef(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   useInfiniteScroll(bodyRef, bottomLineRef, fetchData);
 
   const PAGE_SIZE = 12;
 
   function fetchData() {
     let pageNum = currentPage;
-    if (currentPage <= Math.round(totalUserSCount / PAGE_SIZE)) {
+    if (currentPage <= Math.round(totalUsersCount / PAGE_SIZE)) {
       pageNum += 1;
       setCurrentPage(pageNum);
       getAllUsers();
@@ -36,7 +39,6 @@ const People = () => {
   const getAllUsers = useCallback(async () => {
     try {
       const response = await userService.getAllUsers(currentPage);
-      console.log(response.data.users);
       if (response.data.users.length > 0) {
         setUsers((data) => {
           const result = [...data, ...response.data.users];
@@ -44,13 +46,16 @@ const People = () => {
           return allUsers;
         });
       }
-      setTotalUserCount(response.data.totalUsers);
+      setTotalUsersCount(response.data.totalUsers);
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      Utils.dispatchNotification(error.response.data.messagem, 'error', dispatch);
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
   }, [currentPage, dispatch]);
+
+  const followUser = async (user) => {};
+  const unfollowUser = async (user) => {};
 
   useEffectOnce(() => {
     getAllUsers();
@@ -90,9 +95,9 @@ const People = () => {
                 isChecked={Utils.checkIfUserIsFollowed([], data?._id)}
                 btnTextOne="Follow"
                 btnTextTwo="Unfollow"
-                onClickBtnOne={() => {}}
-                onClickBtnTwo={() => {}}
-                onNavigateToProfile={() => {}}
+                onClickBtnOne={() => followUser(data)}
+                onClickBtnTwo={() => unfollowUser(data)}
+                onNavigateToProfile={() => ProfileUtils.navigateToProfile(data, navigate)}
               />
             </div>
           ))}
