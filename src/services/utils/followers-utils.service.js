@@ -78,7 +78,7 @@ export class FollowersUtils {
     });
   }
 
-  static socketIOBlockAndUnBlockCard(user, setUser) {
+  static socketIOBlockAndUnblockCard(user, setUser) {
     socketService?.socket?.on('blocked user id', (data) => {
       const userData = FollowersUtils.addBlockedUser(user, data);
       setUser(userData);

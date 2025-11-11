@@ -21,7 +21,7 @@ const Followers = () => {
 
   const getUsersFollowers = useCallback(async () => {
     try {
-      if (!profile) {
+      if (profile) {
         const response = await followerService.getUserFollowers(profile?._id);
         setFollowers(response.data.followers);
         setLoading(false);
@@ -55,7 +55,7 @@ const Followers = () => {
   }, [getUsersFollowers, profile]);
 
   useEffect(() => {
-    FollowersUtils.socketIOBlockAndUnBlockCard(profile, token, setBlockedUsers, dispatch);
+    FollowersUtils.socketIOBlockAndUnblock(profile, token, setBlockedUsers, dispatch);
   }, [dispatch, profile, token]);
 
   return (
@@ -86,7 +86,7 @@ const Followers = () => {
               <CardElementButtons
                 isChecked={Utils.checkIfUserIsBlocked(blockedUsers, data?._id)}
                 btnTextOne="Block"
-                btnTextTwo="UnBlock"
+                btnTextTwo="Unblock"
                 onClickBtnOne={() => blockUser(data)}
                 onClickBtnTwo={() => unblockUser(data)}
                 onNavigateToProfile={() => ProfileUtils.navigateToProfile(data, navigate)}
@@ -95,14 +95,16 @@ const Followers = () => {
           ))}
         </div>
       )}
+
       {loading && !followers.length && <div className="card-element" style={{ height: '350px' }}></div>}
+
       {!loading && !followers.length && (
         <div className="empty-page" data-testid="empty-page">
           You have no followers
         </div>
       )}
+      <div style={{ marginBottom: '80px', height: '50px' }}></div>
     </div>
   );
 };
-
 export default Followers;
