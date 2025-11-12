@@ -2,7 +2,6 @@ import { followerService } from '@services/api/followers/follower.service';
 import { Utils } from './utils.service';
 import { socketService } from '@services/socket/socket.service';
 import { cloneDeep, filter, find, findIndex } from 'lodash';
-import { addToSuggestions } from '@redux/reducers/suggestions/suggestions.reducer';
 import { addUser } from '@redux/reducers/user/user.reducer';
 
 export class FollowersUtils {
@@ -46,16 +45,7 @@ export class FollowersUtils {
     });
   }
 
-  static socketIOFollowUsersSuggestions(users, dispatch) {
-    socketService?.socket?.on('add follower', (data) => {
-      users = cloneDeep(users);
-      const userIndex = find(users, (user) => user._id === data?._id);
-      if (userIndex) {
-        users.splice(userIndex, 1);
-        dispatch(addToSuggestions({ users, isLoading: false }));
-      }
-    });
-  }
+
 
   static socketIORemoveFollowing(following, setFollowing) {
     socketService?.socket?.on('remove follower', (data) => {
