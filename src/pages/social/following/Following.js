@@ -99,6 +99,8 @@ const Following = () => {
           You have no following
         </div>
       )}
+
+      <div style={{ marginBottom: '80px', height: '50px' }}></div>
     </div>
   );
 };

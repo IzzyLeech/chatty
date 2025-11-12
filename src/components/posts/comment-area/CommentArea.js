@@ -15,7 +15,7 @@ import { clearPost, updatePostItem } from '@redux/reducers/post/post.reducer';
 
 const CommentArea = ({ post }) => {
   let { reactions } = useSelector((state) => state.userPostReactions);
-  const [userSelectedReaction, setUserSelectedReaction] = useState('');
+  const [userSelectedReaction, setUserSelectedReaction] = useState('like');
   const dispatch = useDispatch();
   const { profile } = useSelector((state) => state.user);
   const selectedPostId = useLocalStorage('selectedPostId', 'get');
@@ -24,7 +24,7 @@ const CommentArea = ({ post }) => {
   const selectedUserReaction = useCallback(
     (postReactions) => {
       const userReaction = find(postReactions, (reaction) => reaction.postId === post._id);
-      const result = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : '';
+      const result = userReaction ? Utils.firstLetterUpperCase(userReaction.type) : 'Like';
       setUserSelectedReaction(result);
     },
     [post]
@@ -155,17 +155,10 @@ const CommentArea = ({ post }) => {
       <div className="like-icon reactions">
         <div className="likes-block" onClick={() => addReactionPost('like')}>
           <div className={`likes-block-icons reaction-icon ${userSelectedReaction.toLowerCase()}`}>
-            {userSelectedReaction && (
-              <div className={`reaction-display ${userSelectedReaction.toLowerCase()}`} data-testid="selected-reaction">
-                <img className="reaction-img" src={reactionsMap[userSelectedReaction.toLowerCase()]} alt="" />
-                <span>{userSelectedReaction}</span>
-              </div>
-            )}
-            {!userSelectedReaction && (
-              <div className="reaction-display" data-testid="default-reaction">
-                <img className="reaction-img" src={`${reactionsMap.like}`} alt="" /> <span>Like</span>
-              </div>
-            )}
+            <div className={`reaction-display ${userSelectedReaction.toLowerCase()}`} data-testid="selected-reaction">
+              <img className="reaction-img" src={reactionsMap[userSelectedReaction.toLowerCase()]} alt="" />
+              <span>{userSelectedReaction}</span>
+            </div>
           </div>
         </div>
         <div className="reactions-container app-reactions">

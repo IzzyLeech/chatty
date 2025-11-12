@@ -66,12 +66,9 @@ const Streams = () => {
   useEffectOnce(() => {
     getReactionsByUsername();
     deleteSelectedPostId();
-  }, []);
-
-  useEffect(() => {
     dispatch(getPosts());
     dispatch(getUserSuggestions());
-  }, [dispatch]);
+  });
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
