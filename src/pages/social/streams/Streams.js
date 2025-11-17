@@ -14,12 +14,14 @@ import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils-service';
 import useLocalStorage from '@hooks/useLocalStorage';
 import { addReactions } from '@redux/reducers/post/user-post-reaction.reducer';
+import { followerService } from '@services/api/followers/follower.service';
 
 const Streams = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPostsCount, setTotalPostsCount] = useState(0);
   const bodyRef = useRef(null);
+  const [following, setFollowing] = useState([])
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
   const storedUsername = useLocalStorage('username', 'get');
@@ -57,21 +59,28 @@ const Streams = () => {
   const getReactionsByUsername = async () => {
     try {
       const response = await postService.getReactionsByUsername(storedUsername);
-      dispatch(addReactions(response.data.reactions));
+      setFollowing(response.data.reactions);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
+  const getUserFollowing = async () => {
+    try {
+      const response = await followerService.getUserFollowing();
+      setFollowing(response.data.following);
     } catch (error) {
       Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
   };
 
   useEffectOnce(() => {
+    getUserFollowing();
     getReactionsByUsername();
     deleteSelectedPostId();
-  }, []);
-
-  useEffect(() => {
     dispatch(getPosts());
     dispatch(getUserSuggestions());
-  }, [dispatch]);
+  });
 
   useEffect(() => {
     setLoading(allPosts?.isLoading);
@@ -90,7 +99,7 @@ const Streams = () => {
         <div className="streams-post" ref={bodyRef} style={{ backgroundColor: 'white' }}>
           <div>
             <PostForm />
-            <Posts allPosts={posts} postsLoading={loading} userFollowing={[]} />
+            <Posts allPosts={posts} postsLoading={loading} userFollowing={following} />
           </div>
           <div ref={bottomLineRef} style={{ marginBottom: '50px', height: '50px' }}></div>
         </div>
