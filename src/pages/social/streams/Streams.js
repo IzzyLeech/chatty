@@ -21,7 +21,7 @@ const Streams = () => {
   const [loading, setLoading] = useState(true);
   const [totalPostsCount, setTotalPostsCount] = useState(0);
   const bodyRef = useRef(null);
-  const [following, setFollowing] = useState([])
+  const [following, setFollowing] = useState([]);
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
   const storedUsername = useLocalStorage('username', 'get');
