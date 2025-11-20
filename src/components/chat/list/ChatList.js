@@ -9,11 +9,12 @@ import SearchList from './search-list/SearchList';
 import { userService } from '@services/api/user/user.service';
 import useDebounce from '@hooks/useDebounce';
 import { ChatUtils } from '@services/utils/chat.utils.service';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { chatService } from '@services/api/chat/chat.service';
 import { setSelectedChatUser } from '@redux/reducers/chat/chat.reducer';
-import { find } from 'lodash';
+import { cloneDeep, find, findIndex } from 'lodash';
 import { timeAgo } from '@services/utils/timeago.utils';
+import ChatListBody from './ChatListBody';
 
 const ChatList = () => {
   const { profile } = useSelector((state) => state.user);
@@ -23,9 +24,11 @@ const ChatList = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [componentType, setComponentType] = useState('chatList');
-  const [chatMessageList, setChatMessageList] = useState([]);
+  let [chatMessageList, setChatMessageList] = useState([]);
   const debouncedValue = useDebounce(search, 1000);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const searchUsers = useCallback(
@@ -79,6 +82,35 @@ const ChatList = () => {
     [chatList, chatMessageList, dispatch, searchParams, profile]
   );
 
+  const removeSelectedUserFromList = (event) => {
+    event.stopPropagation();
+    chatMessageList = cloneDeep(chatMessageList);
+    const userIndex = findIndex(chatMessageList, ['receiverId', searchParams.get('id')]);
+    if (userIndex > -1) {
+      chatMessageList.splice(userIndex, 1);
+      setSelectedUser(null);
+      setChatMessageList(chatMessageList);
+      ChatUtils.updatedSelectedChatUser({
+        chatMessageList,
+        profile,
+        username: searchParams.get('username'),
+        setSelectedChatUser,
+        params: chatMessageList.length ? updateQueryParams(chatMessageList[0]) : null,
+        pathname: location.pathname,
+        navigate,
+        dispatch
+      });
+    }
+  };
+
+  const updateQueryParams = (user) => {
+    setSelectedUser(user);
+    const params = ChatUtils.chatUrlParams(user, profile);
+    ChatUtils.joinRoomEvent(user, profile);
+    ChatUtils.privateChatMessages = [];
+    return params;
+  };
+
   useEffect(() => {
     if (debouncedValue) {
       searchUsers(debouncedValue);
@@ -86,10 +118,7 @@ const ChatList = () => {
   }, [debouncedValue, searchUsers]);
 
   useEffect(() => {
-    console.log('%c[useEffect FIRED]', 'color: #4CAF50; font-weight: bold;', { selectedUser, componentType });
-
     if (selectedUser && componentType === 'searchList') {
-      console.log('%cRunning addSelectedUserToList()', 'color: orange;');
       addSelectedUserToList(selectedUser);
     }
   }, [addSelectedUserToList, componentType, selectedUser]);
@@ -175,13 +204,13 @@ const ChatList = () => {
                   </div>
                   {data?.createdAt && <div className="created-date">{timeAgo.transform(data?.createdAt)}</div>}
                   {!data?.body && (
-                    <div className="created-date">
+                    <div className="created-date" onClick={removeSelectedUserFromList}>
                       <FaTimes />
                     </div>
                   )}
-                  {/* {data?.body && !data?.deleteForMe && !data.deleteForEveryone && (
+                  {data?.body && !data?.deleteForMe && !data.deleteForEveryone && (
                     <ChatListBody data={data} profile={profile} />
-                  )} */}
+                  )}
                   {data?.deleteForMe && data?.deleteForEveryone && (
                     <div className="conversation-message">
                       <span className="message-deleted">message deleted</span>
@@ -192,9 +221,9 @@ const ChatList = () => {
                       <span className="message-deleted">message deleted</span>
                     </div>
                   )}
-                  {/* {data?.deleteForMe && !data.deleteForEveryone && data.receiverUsername !== profile?.username && (
+                  {data?.deleteForMe && !data.deleteForEveryone && data.receiverUsername !== profile?.username && (
                     <ChatListBody data={data} profile={profile} />
-                  )} */}
+                  )}
                 </div>
               ))}
             </div>
