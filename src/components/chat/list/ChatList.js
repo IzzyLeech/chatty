@@ -9,7 +9,7 @@ import SearchList from './search-list/SearchList';
 import { userService } from '@services/api/user/user.service';
 import useDebounce from '@hooks/useDebounce';
 import { ChatUtils } from '@services/utils/chat.utils.service';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { createSearchParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { chatService } from '@services/api/chat/chat.service';
 import { setSelectedChatUser } from '@redux/reducers/chat/chat.reducer';
 import { cloneDeep, find, findIndex } from 'lodash';
@@ -111,6 +111,29 @@ const ChatList = () => {
     return params;
   };
 
+  const addUsernameToUrlQuery = async (user) => {
+    try {
+      const sender = find(
+        ChatUtils.chatUsers,
+        (userData) =>
+          userData.userOne === profile?.username && userData.userTwo.toLowerCase() === searchParams.get('username')
+      );
+      const params = updateQueryParams(user);
+      const userTwoName = user?.receiverUsername !== profile?.username ? user?.receiverUsername : user?.senderUsername;
+      const receiverId = user?.receiverUsername !== profile?.username ? user?.receiverId : user?.senderId;
+      navigate(`${location.pathname}?${createSearchParams(params)}`);
+      if (sender) {
+        chatService.removeChatUsers(sender);
+      }
+      chatService.addChatUsers({ userOne: profile?.username, userTwo: userTwoName });
+      if (user?.receiverUsername === profile?.username && !user.isRead) {
+        await chatService.markMessagesAsRead(profile?._id, receiverId);
+      }
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
   useEffect(() => {
     if (debouncedValue) {
       searchUsers(debouncedValue);
@@ -183,6 +206,7 @@ const ChatList = () => {
                       ? 'active'
                       : ''
                   }`}
+                  onClick={() => addUsernameToUrlQuery(data)}
                 >
                   <div className="avatar">
                     <Avatar
