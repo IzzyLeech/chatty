@@ -7,7 +7,12 @@ class ChatService {
   }
 
   async removeChatUsers(body) {
-    const response = await axios.get('/chat/message/remove-chat-users', body);
+    const response = await axios.post('/chat/message/remove-chat-users', body);
+    return response;
+  }
+
+  async addChatUsers(body) {
+    const response = await axios.post('/chat/message/add-chat-users', body);
     return response;
   }
 }

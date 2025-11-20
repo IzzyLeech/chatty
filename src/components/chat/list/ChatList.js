@@ -8,6 +8,12 @@ import '@components/chat/list/ChatList.scss';
 import SearchList from './search-list/SearchList';
 import { userService } from '@services/api/user/user.service';
 import useDebounce from '@hooks/useDebounce';
+import { ChatUtils } from '@services/utils/chat.utils.service';
+import { useSearchParams } from 'react-router-dom';
+import { chatService } from '@services/api/chat/chat.service';
+import { setSelectedChatUser } from '@redux/reducers/chat/chat.reducer';
+import { find } from 'lodash';
+import { timeAgo } from '@services/utils/timeago.utils';
 
 const ChatList = () => {
   const { profile } = useSelector((state) => state.user);
@@ -20,6 +26,7 @@ const ChatList = () => {
   const [chatMessageList, setChatMessageList] = useState([]);
   const debouncedValue = useDebounce(search, 1000);
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
 
   const searchUsers = useCallback(
     async (query) => {
@@ -39,6 +46,39 @@ const ChatList = () => {
     [dispatch]
   );
 
+  const addSelectedUserToList = useCallback(
+    (user) => {
+      const newUser = {
+        receiverId: user?._id,
+        receiverUsername: user?.username,
+        receiverAvatarColor: user?.avatarColor,
+        receiverProfilePicture: user?.profilePicture,
+        senderUsername: profile?.username,
+        senderId: profile?._id,
+        senderAvatarColor: profile?.avatarColor,
+        senderProfilePicture: profile?.profilePicture,
+        body: ''
+      };
+      ChatUtils.joinRoomEvent(user, profile);
+      ChatUtils.privateChatMessages = [];
+      const findUser = find(
+        chatMessageList,
+        (chat) => chat.receiverId === searchParams.get('id') || chat.senderId === searchParams.get('id')
+      );
+      if (!findUser) {
+        const newChatList = [newUser, ...chatMessageList];
+        setChatMessageList(newChatList);
+        if (!chatList.length) {
+          dispatch(setSelectedChatUser({ isLoading: false, user: newUser }));
+          const userTwoName =
+            newUser?.receiverUsername !== profile?.username ? newUser?.receiverUsername : newUser?.senderUsername;
+          chatService.addChatUsers({ userOne: profile?.username, userTwo: userTwoName });
+        }
+      }
+    },
+    [chatList, chatMessageList, dispatch, searchParams, profile]
+  );
+
   useEffect(() => {
     if (debouncedValue) {
       searchUsers(debouncedValue);
@@ -46,8 +86,15 @@ const ChatList = () => {
   }, [debouncedValue, searchUsers]);
 
   useEffect(() => {
-    console.log(selectedUser, componentType, chatMessageList);
+    console.log('%c[useEffect FIRED]', 'color: #4CAF50; font-weight: bold;', { selectedUser, componentType });
 
+    if (selectedUser && componentType === 'searchList') {
+      console.log('%cRunning addSelectedUserToList()', 'color: orange;');
+      addSelectedUserToList(selectedUser);
+    }
+  }, [addSelectedUserToList, componentType, selectedUser]);
+
+  useEffect(() => {
     setChatMessageList(chatList);
   }, [chatList]);
 
@@ -92,31 +139,66 @@ const ChatList = () => {
               }}
             />
           )}
-          <FaTimes className="times" />
         </div>
 
         <div className="conversation-container-body">
-          <div className="conversation">
-            {[].map((data) => (
-              <div key={Utils.generateString(10)} data-testid="conversation-item" className="conversation-item">
-                <div className="avatar">
-                  <Avatar name="placeholder" bgColor="red" textColor="#ffffff" size={40} avatarSrc="" />
+          {!search && (
+            <div className="conversation">
+              {chatMessageList.map((data) => (
+                <div
+                  key={Utils.generateString(10)}
+                  data-testid="conversation-item"
+                  className={`conversation-item ${
+                    searchParams.get('username') === data?.receiverUsername.toLowerCase() ||
+                    searchParams.get('username') === data?.senderUsername.toLowerCase()
+                      ? 'active'
+                      : ''
+                  }`}
+                >
+                  <div className="avatar">
+                    <Avatar
+                      name={data.receiverUsername === profile?.username ? profile?.username : data?.senderUsername}
+                      bgColor={
+                        data.receiverUsername === profile?.username ? data.receiverAvatarColor : data?.senderAvatarColor
+                      }
+                      textColor="#ffffff"
+                      size={40}
+                      avatarSrc={
+                        data.receiverUsername !== profile?.username
+                          ? data.receiverProfilePicture
+                          : data?.senderProfilePicture
+                      }
+                    />
+                  </div>
+                  <div className={`title-text ${selectedUser && !data.body ? 'selected-user-text' : ''} `}>
+                    {data.receiverUsername !== profile?.username ? data.receiverUsername : data?.senderUsername}
+                  </div>
+                  {data?.createdAt && <div className="created-date">{timeAgo.transform(data?.createdAt)}</div>}
+                  {!data?.body && (
+                    <div className="created-date">
+                      <FaTimes />
+                    </div>
+                  )}
+                  {/* {data?.body && !data?.deleteForMe && !data.deleteForEveryone && (
+                    <ChatListBody data={data} profile={profile} />
+                  )} */}
+                  {data?.deleteForMe && data?.deleteForEveryone && (
+                    <div className="conversation-message">
+                      <span className="message-deleted">message deleted</span>
+                    </div>
+                  )}
+                  {data?.deleteForMe && !data.deleteForEveryone && data.senderUsername !== profile?.username && (
+                    <div className="conversation-message">
+                      <span className="message-deleted">message deleted</span>
+                    </div>
+                  )}
+                  {/* {data?.deleteForMe && !data.deleteForEveryone && data.receiverUsername !== profile?.username && (
+                    <ChatListBody data={data} profile={profile} />
+                  )} */}
                 </div>
-                <div className="title-text">Danny</div>
-                <div className="created-date">1 hr ago</div>
-                <div className="created-date">
-                  <FaTimes />
-                </div>
-
-                <div className="conversation-message">
-                  <span className="message-deleted">message deleted</span>
-                </div>
-                <div className="conversation-message">
-                  <span className="message-deleted">message deleted</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <SearchList
             searchTerm={search}

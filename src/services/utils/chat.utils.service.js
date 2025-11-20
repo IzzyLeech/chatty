@@ -7,13 +7,13 @@ export class ChatUtils {
   static privateChatMessages = [];
   static chatUsers = [];
 
-  static userOnline(setOnlineUsers) {
+  static usersOnline(setOnlineUsers) {
     socketService?.socket?.on('user online', (data) => {
       setOnlineUsers(data);
     });
   }
 
-  static userOnChatPage(setOnlineUsers) {
+  static usersOnChatPage() {
     socketService?.socket?.on('add chat users', (data) => {
       ChatUtils.chatUsers = [...data];
     });
@@ -22,11 +22,11 @@ export class ChatUtils {
   static joinRoomEvent(user, profile) {
     const users = {
       receiverId: user.receiverId,
-      receiverName: user.receiverName,
+      receiverName: user.receiverUsername,
       senderId: profile?._id,
       senderName: profile?.username
     };
-    socketService?.socket.emit('join room', users);
+    socketService?.socket?.emit('join room', users);
   }
 
   static emitChatPageEvent(event, data) {
@@ -57,8 +57,9 @@ export class ChatUtils {
   }) {
     const chatConversationId = find(
       chatMessages,
-      (chat) => chat.receiver === searchParamsId || chat.senderId === searchParamsId
+      (chat) => chat.receiverId === searchParamsId || chat.senderId === searchParamsId
     );
+
     const messageData = {
       conversationId: chatConversationId ? chatConversationId.conversationId : conversationId,
       receiverId: receiver?._id,
@@ -73,7 +74,7 @@ export class ChatUtils {
     return messageData;
   }
 
-  static updateSelectedChatUser({
+  static updatedSelectedChatUser({
     chatMessageList,
     profile,
     username,
@@ -85,7 +86,7 @@ export class ChatUtils {
   }) {
     if (chatMessageList.length) {
       dispatch(setSelectedChatUser({ isLoading: false, user: chatMessageList[0] }));
-      navigate(`${pathname}?${createSearchParams(params)}}`);
+      navigate(`${pathname}?${createSearchParams(params)}`);
     } else {
       dispatch(setSelectedChatUser({ isLoading: false, user: null }));
       const sender = find(
@@ -101,7 +102,7 @@ export class ChatUtils {
   static socketIOChatList(profile, chatMessageList, setChatMessageList) {
     socketService?.socket?.on('chat list', (data) => {
       if (data.senderUsername === profile?.username || data.receiverUsername === profile?.username) {
-        const messageIndex = findIndex(chatMessageList, ['conversationId', data.chatConversationId]);
+        const messageIndex = findIndex(chatMessageList, ['conversationId', data.conversationId]);
         chatMessageList = cloneDeep(chatMessageList);
         if (messageIndex > -1) {
           remove(chatMessageList, (chat) => chat.conversationId === data.conversationId);
