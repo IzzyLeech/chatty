@@ -150,6 +150,10 @@ const ChatList = () => {
     setChatMessageList(chatList);
   }, [chatList]);
 
+  useEffect(() => {
+    ChatUtils.socketIOChatList(profile, chatMessageList, setChatMessageList);
+  }, [chatMessageList, profile]);
+
   return (
     <div data-testid="chatList">
       <div className="conversation-container">
