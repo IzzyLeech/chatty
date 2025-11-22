@@ -7,43 +7,79 @@ import photo from '@assets/images/photo.png';
 import feeling from '@assets/images/feeling.png';
 import loadable from '@loadable/component';
 import Input from '@components/input/Input';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import GiphyContainer from '@components/chat/giphy-container/GiphyContainer';
 import ImagePreview from '@components/chat/image-preview/ImagePreview';
 import { ImageUtils } from '@services/utils/image-utils.service';
 
-const EmojiPickerComponet = loadable(() => import('./EmojiPicker'), {
+const EmojiPickerComponent = loadable(() => import('./EmojiPicker'), {
   fallback: <p id="loading">Loading...</p>
 });
 
 const MessageInput = ({ setChatMessage }) => {
-  const [showEmojoContainer, setShowEmojiContainer] = useState(false);
+  let [message, setMessage] = useState('');
+  const [showEmojiContainer, setShowEmojiContainer] = useState(false);
   const [showGifContainer, setShowGifContainer] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [file, setFile] = useState();
+  const [base64File, setBase64File] = useState('');
   const fileInputRef = useRef();
+  const messageInputRef = useRef();
+  const [hasFocus, setHasFocus] = useState(false);
 
-  const handleGiphyClick = () => {};
+  const handleClick = (event) => {
+    event.preventDefault();
+    message = message || 'Sent an image';
+    setChatMessage(message.replace(/ +(?=)/g, ''), '', base64File);
+    setMessage('');
+    reset();
+  };
+
+  const handleGiphyClick = (url) => {
+    setChatMessage('Sent a GIF', url, '');
+    reset();
+  };
+
   const addToPreview = async (file) => {
     ImageUtils.checkFile(file);
     setFile(URL.createObjectURL(file));
     const result = await ImageUtils.readAsBase64(file);
-    console.log(result);
+    setBase64File(result);
     setShowImagePreview(!showImagePreview);
     setShowEmojiContainer(false);
     setShowGifContainer(false);
+  };
+
+  const handleImageClick = () => {
+    message = message || 'Sent an Image';
+    setChatMessage(message.replace(/ +(?= )/g, ''), '', base64File);
+    reset();
   };
 
   const fileInputClicked = () => {
     fileInputRef.current.click();
   };
 
+  const reset = () => {
+    setBase64File('');
+    setShowImagePreview(false);
+    setShowEmojiContainer(false);
+    setShowGifContainer(false);
+    setFile('');
+  };
+
+  useEffect(() => {
+    if (messageInputRef?.current) {
+      messageInputRef.current.focus();
+    }
+  }, [setChatMessage]);
+
   return (
     <>
-      {showEmojoContainer && (
-        <EmojiPickerComponet
-          onEmojiClick={(event, eventObject) => {
-            console.log(eventObject);
+      {showEmojiContainer && (
+        <EmojiPickerComponent
+          onEmojiClick={(emojiObject, event) => {
+            setMessage((text) => text + ` ${emojiObject.emoji}`);
           }}
           pickerStyle={{ width: '352px', height: '447px' }}
         />
@@ -55,12 +91,13 @@ const MessageInput = ({ setChatMessage }) => {
             image={file}
             onRemoveImage={() => {
               setFile('');
-              setShowImagePreview(showImagePreview);
+              setBase64File('');
+              setShowImagePreview(!showImagePreview);
             }}
           />
         )}
-        <form>
-          <ul className="chat-list" style={{ borderColor: '#50b5ff' }}>
+        <form onSubmit={handleClick}>
+          <ul className="chat-list" style={{ borderColor: `${hasFocus ? '#50b5ff' : '#f1f0f0'}` }}>
             <li
               className="chat-list-item"
               onClick={() => {
@@ -98,7 +135,7 @@ const MessageInput = ({ setChatMessage }) => {
             <li
               className="chat-list-item"
               onClick={() => {
-                setShowEmojiContainer(!showEmojoContainer);
+                setShowEmojiContainer(!showEmojiContainer);
                 setShowGifContainer(false);
                 setShowImagePreview(false);
               }}
@@ -107,16 +144,22 @@ const MessageInput = ({ setChatMessage }) => {
             </li>
           </ul>
           <Input
+            ref={messageInputRef}
             id="message"
             name="message"
             type="text"
             className="chat-input"
-            // value=""
+            value={message}
             labelText=""
             placeholder="Enter your message..."
+            onFocus={() => setHasFocus(true)}
+            onBlur={() => setHasFocus(false)}
+            handleChange={(event) => setMessage(event.target.value)}
           />
         </form>
-        <Button label={<FaPaperPlane />} className="paper" />
+        {showImagePreview && !message && (
+          <Button label={<FaPaperPlane />} className="paper" handleClick={handleImageClick} />
+        )}
       </div>
     </>
   );

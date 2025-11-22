@@ -6,7 +6,11 @@ import MessageInput from '@components/chat/window/message-input/MessageInput';
 const ChatWindow = () => {
   const { profile } = useSelector((state) => state.user);
 
-  const sendChatMessage = () => {};
+  const sendChatMessage = (message, gifUrl, selectedImage) => {
+    console.log(message);
+    console.log(gifUrl);
+    console.log(selectedImage);
+  };
 
   return (
     <div className="chat-window-container" data-testid="chatWindowContainer">
