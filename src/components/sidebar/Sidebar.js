@@ -5,7 +5,7 @@ import { useLocation, createSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosts } from '@redux/api/posts';
 import { Utils } from '@services/utils/utils.service';
-import { ChatUtils } from '@services/utils/chat.utils.service';
+import { ChatUtils } from '@services/utils/chat-utils.service';
 import { chatService } from '@services/api/chat/chat.service';
 import { socketService } from '@services/socket/socket.service';
 

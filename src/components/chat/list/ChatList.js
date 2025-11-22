@@ -8,13 +8,13 @@ import '@components/chat/list/ChatList.scss';
 import SearchList from './search-list/SearchList';
 import { userService } from '@services/api/user/user.service';
 import useDebounce from '@hooks/useDebounce';
-import { ChatUtils } from '@services/utils/chat.utils.service';
+import { ChatUtils } from '@services/utils/chat-utils.service';
 import { createSearchParams, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { chatService } from '@services/api/chat/chat.service';
 import { setSelectedChatUser } from '@redux/reducers/chat/chat.reducer';
 import { cloneDeep, find, findIndex } from 'lodash';
 import { timeAgo } from '@services/utils/timeago.utils';
-import ChatListBody from './ChatListBody';
+import ChatListBody from '@components/chat/list/ChatListBody';
 
 const ChatList = () => {
   const { profile } = useSelector((state) => state.user);
@@ -25,6 +25,7 @@ const ChatList = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [componentType, setComponentType] = useState('chatList');
   let [chatMessageList, setChatMessageList] = useState([]);
+  const [rendered, setRendered] = useState(false);
   const debouncedValue = useDebounce(search, 1000);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -143,16 +144,20 @@ const ChatList = () => {
   useEffect(() => {
     if (selectedUser && componentType === 'searchList') {
       addSelectedUserToList(selectedUser);
+      setComponentType('chatList');
     }
-  }, [addSelectedUserToList, componentType, selectedUser]);
+  }, [selectedUser, componentType]);
 
   useEffect(() => {
     setChatMessageList(chatList);
   }, [chatList]);
 
   useEffect(() => {
-    ChatUtils.socketIOChatList(profile, chatMessageList, setChatMessageList);
-  }, [chatMessageList, profile]);
+    if (!rendered) {
+      ChatUtils.socketIOChatList(profile, chatMessageList, setChatMessageList);
+      setRendered(true);
+    }
+  }, [rendered]);
 
   return (
     <div data-testid="chatList">
@@ -191,7 +196,7 @@ const ChatList = () => {
               onClick={() => {
                 setSearch('');
                 setIsSearching(false);
-                setSearchResult('');
+                setSearchResult([]);
               }}
             />
           )}
@@ -227,7 +232,7 @@ const ChatList = () => {
                       }
                     />
                   </div>
-                  <div className={`title-text ${selectedUser && !data.body ? 'selected-user-text' : ''} `}>
+                  <div className={`title-text ${selectedUser && !data.body ? 'selected-user-text' : ''}`}>
                     {data.receiverUsername !== profile?.username ? data.receiverUsername : data?.senderUsername}
                   </div>
                   {data?.createdAt && <div className="created-date">{timeAgo.transform(data?.createdAt)}</div>}

@@ -1,9 +1,12 @@
 import Avatar from '@components/avatar/Avatar';
 import '@components/chat/window/ChatWindow.scss';
 import { useSelector } from 'react-redux';
+import MessageInput from '@components/chat/window/message-input/MessageInput';
 
 const ChatWindow = () => {
   const { profile } = useSelector((state) => state.user);
+
+  const sendChatMessage = () => {};
 
   return (
     <div className="chat-window-container" data-testid="chatWindowContainer">
