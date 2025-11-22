@@ -28,7 +28,9 @@ const ChatWindow = () => {
         </div>
         <div className="chat-window">
           <div className="chat-window-message">Message display component</div>
-          <div className="chat-window-input">Message input component</div>
+          <div className="chat-window-input">
+            <MessageInput setChatMessage={sendChatMessage} />
+          </div>
         </div>
       </div>
     </div>
