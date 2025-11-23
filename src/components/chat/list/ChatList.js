@@ -144,20 +144,19 @@ const ChatList = () => {
   useEffect(() => {
     if (selectedUser && componentType === 'searchList') {
       addSelectedUserToList(selectedUser);
-      setComponentType('chatList');
     }
-  }, [selectedUser, componentType]);
+  }, [addSelectedUserToList, componentType, selectedUser]);
 
   useEffect(() => {
     setChatMessageList(chatList);
   }, [chatList]);
 
   useEffect(() => {
-    if (!rendered) {
+    if (rendered) {
       ChatUtils.socketIOChatList(profile, chatMessageList, setChatMessageList);
-      setRendered(true);
     }
-  }, [rendered]);
+    if (!rendered) setRendered(true);
+  }, [chatMessageList, profile, rendered]);
 
   return (
     <div data-testid="chatList">
