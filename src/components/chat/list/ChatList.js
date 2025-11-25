@@ -52,13 +52,15 @@ const ChatList = () => {
 
   const addSelectedUserToList = useCallback(
     (user) => {
+      const isMessage = !!user.senderUsername;
+
       const newUser = {
-        receiverId: user?._id,
-        receiverUsername: user?.username,
-        receiverAvatarColor: user?.avatarColor,
-        receiverProfilePicture: user?.profilePicture,
-        senderUsername: profile?.username,
+        receiverId: isMessage ? user.receiverId : user._id,
+        receiverUsername: isMessage ? user.receiverUsername : user.username,
+        receiverAvatarColor: isMessage ? user.receiverAvatarColor : user.avatarColor,
+        receiverProfilePicture: isMessage ? user.receiverProfilePicture : user.profilePicture,
         senderId: profile?._id,
+        senderUsername: profile?.username,
         senderAvatarColor: profile?.avatarColor,
         senderProfilePicture: profile?.profilePicture,
         body: ''
@@ -69,29 +71,26 @@ const ChatList = () => {
         ChatUtils.privateChatMessages = [];
       }
 
-      const findUser = find(chatMessageList, (chat) => chat.receiverId === user?._id || chat.senderId === user?._id);
+      const alreadyExists = find(
+        chatMessageList,
+        (chat) => chat.receiverId === newUser.receiverId || chat.senderId === newUser.receiverId
+      );
 
-      if (!findUser) {
-        const newChatList = [newUser, ...chatMessageList];
-        console.log('New chat list after adding user:', newChatList);
-
-        setChatMessageList(newChatList);
+      if (!alreadyExists) {
+        const updatedList = [newUser, ...chatMessageList];
+        setChatMessageList(updatedList);
 
         if (!selectedChatUser) {
-          console.log('Setting selectedChatUser to:', newUser);
           dispatch(setSelectedChatUser({ isLoading: false, user: newUser }));
 
           const userTwoName =
             newUser.receiverUsername !== profile.username ? newUser.receiverUsername : newUser.senderUsername;
 
-          console.log('Adding chat user via chatService:', { userOne: profile.username, userTwo: userTwoName });
           chatService.addChatUsers({
             userOne: profile.username,
             userTwo: userTwoName
           });
         }
-      } else {
-        console.log('User already exists in chatMessageList, no changes made.');
       }
     },
     [chatMessageList, selectedChatUser, dispatch, profile]
