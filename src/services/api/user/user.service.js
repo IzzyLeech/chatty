@@ -30,8 +30,6 @@ class UserService {
     const response = await axios.get(`/user/profile/${userId}`);
     return response;
   }
-
-
 }
 
 export const userService = new UserService();

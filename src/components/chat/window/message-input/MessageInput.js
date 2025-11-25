@@ -30,7 +30,7 @@ const MessageInput = ({ setChatMessage }) => {
   const handleClick = (event) => {
     event.preventDefault();
     message = message || 'Sent an image';
-    setChatMessage(message.replace(/ +(?=)/g, ''), '', base64File);
+    setChatMessage(message.replace(/ +(?= )/g, ''), '', base64File);
     setMessage('');
     reset();
   };

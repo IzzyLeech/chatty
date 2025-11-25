@@ -18,7 +18,7 @@ import ChatListBody from '@components/chat/list/ChatListBody';
 
 const ChatList = () => {
   const { profile } = useSelector((state) => state.user);
-  const { chatList } = useSelector((state) => state.chat);
+  const { selectedChatUser, chatList } = useSelector((state) => state.chat);
   const [search, setSearch] = useState('');
   const [searchResult, setSearchResult] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -63,33 +63,48 @@ const ChatList = () => {
         senderProfilePicture: profile?.profilePicture,
         body: ''
       };
+
       ChatUtils.joinRoomEvent(user, profile);
-      ChatUtils.privateChatMessages = [];
-      const findUser = find(
-        chatMessageList,
-        (chat) => chat.receiverId === searchParams.get('id') || chat.senderId === searchParams.get('id')
-      );
+      if (!ChatUtils.privateChatMessages) {
+        ChatUtils.privateChatMessages = [];
+      }
+
+      const findUser = find(chatMessageList, (chat) => chat.receiverId === user?._id || chat.senderId === user?._id);
+
       if (!findUser) {
         const newChatList = [newUser, ...chatMessageList];
+        console.log('New chat list after adding user:', newChatList);
+
         setChatMessageList(newChatList);
-        if (!chatList.length) {
+
+        if (!selectedChatUser) {
+          console.log('Setting selectedChatUser to:', newUser);
           dispatch(setSelectedChatUser({ isLoading: false, user: newUser }));
+
           const userTwoName =
-            newUser?.receiverUsername !== profile?.username ? newUser?.receiverUsername : newUser?.senderUsername;
-          chatService.addChatUsers({ userOne: profile?.username, userTwo: userTwoName });
+            newUser.receiverUsername !== profile.username ? newUser.receiverUsername : newUser.senderUsername;
+
+          console.log('Adding chat user via chatService:', { userOne: profile.username, userTwo: userTwoName });
+          chatService.addChatUsers({
+            userOne: profile.username,
+            userTwo: userTwoName
+          });
         }
+      } else {
+        console.log('User already exists in chatMessageList, no changes made.');
       }
     },
-    [chatList, chatMessageList, dispatch, searchParams, profile]
+    [chatMessageList, selectedChatUser, dispatch, profile]
   );
 
   const removeSelectedUserFromList = (event) => {
     event.stopPropagation();
+    setComponentType('chatList');
+    setSelectedUser(null);
     chatMessageList = cloneDeep(chatMessageList);
     const userIndex = findIndex(chatMessageList, ['receiverId', searchParams.get('id')]);
     if (userIndex > -1) {
       chatMessageList.splice(userIndex, 1);
-      setSelectedUser(null);
       setChatMessageList(chatMessageList);
       ChatUtils.updatedSelectedChatUser({
         chatMessageList,

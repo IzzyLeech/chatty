@@ -9,6 +9,7 @@ import { userService } from '@services/api/user/user.service';
 import { ChatUtils } from '@services/utils/chat-utils.service';
 import { chatService } from '@services/api/chat/chat.service';
 import { some } from 'lodash';
+import MessageDisplay from './message-display/MessageDisplay';
 
 const ChatWindow = () => {
   const { profile } = useSelector((state) => state.user);
@@ -25,7 +26,6 @@ const ChatWindow = () => {
     async (receiverId) => {
       try {
         const response = await chatService.getChatMessages(receiverId);
-        console.log(response.data.messages);
         ChatUtils.privateChatMessages = [...response.data.messages];
         setChatMessages([...ChatUtils.privateChatMessages]);
       } catch (error) {
@@ -79,6 +79,22 @@ const ChatWindow = () => {
     }
   };
 
+  const updateMessageReaction = async (body) => {
+    try {
+      await chatService.updateMessageReaction(body);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
+  const deleteChatMessage = async (senderId, receiverId, MessageSidebar, type) => {
+    try {
+      await chatService.markMessageAsDelete(MessageSidebar, senderId, receiverId, type);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
   useEffect(() => {
     if (rendered) {
       getUserProfileByUserId();
@@ -90,8 +106,9 @@ const ChatWindow = () => {
   useEffect(() => {
     if (rendered) {
       ChatUtils.socketIOMessageReceived(chatMessages, searchParams.get('username'), setConversationId, setChatMessages);
+    } else {
+      setRendered(true);
     }
-    if (!rendered) setRendered(true);
     ChatUtils.usersOnline(setOnlineUsers);
     ChatUtils.usersOnChatPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,7 +148,14 @@ const ChatWindow = () => {
             </div>
           </div>
           <div className="chat-window">
-            <div className="chat-window-message">Message display component</div>
+            <div className="chat-window-message">
+              <MessageDisplay
+                chatMessages={chatMessages}
+                profile={profile}
+                updateMessageReaction={updateMessageReaction}
+                deleteChatMessage={deleteChatMessage}
+              />
+            </div>
             <div className="chat-window-input">
               <MessageInput setChatMessage={sendChatMessage} />
             </div>

@@ -100,6 +100,7 @@ export class ChatUtils {
   }
 
   static socketIOChatList(profile, chatMessageList, setChatMessageList) {
+    socketService?.socket?.off('chat list');
     socketService?.socket?.on('chat list', (data) => {
       if (data.senderUsername === profile?.username || data.receiverUsername === profile?.username) {
         const messageIndex = findIndex(chatMessageList, ['conversationId', data.conversationId]);
@@ -117,6 +118,8 @@ export class ChatUtils {
   }
 
   static socketIOMessageReceived(chatMessages, username, setConversationId, setChatMessages) {
+    socketService?.socket?.off('message received');
+    socketService?.socket?.off('message read');
     chatMessages = cloneDeep(chatMessages);
     socketService?.socket?.on('message received', (data) => {
       if (data.senderUsername.toLowerCase() === username || data.receiverUsername.toLowerCase() === username) {
