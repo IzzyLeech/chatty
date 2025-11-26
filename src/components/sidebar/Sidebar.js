@@ -1,6 +1,6 @@
 import '@components/sidebar/Sidebar.scss';
 import { sideBarItems, fontAwesomeIcons } from '@services/utils/static.data';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, createSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosts } from '@redux/api/posts';
@@ -12,11 +12,12 @@ import { socketService } from '@services/socket/socket.service';
 const Sidebar = () => {
   const [sidebar, setSidebar] = useState([]);
   const location = useLocation();
-  const [chatPageName, setChatPageName] = useState('');
   const { chatList } = useSelector((state) => state.chat);
   const { profile } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigatedRef = useRef(false);
+  const onChatPage = location.pathname.includes('/app/social/chat');
 
   const checkUrl = (name) => {
     return location.pathname.includes(name.toLowerCase());
@@ -31,12 +32,10 @@ const Sidebar = () => {
       dispatch(getPosts());
     }
 
-    if (name === 'Chat') {
-      setChatPageName('Chat');
-    } else {
+    if (name !== 'Chat' && onChatPage) {
       leaveChatPage();
-      setChatPageName('');
     }
+
     socketService?.socket.off('message received');
     navigate(url);
   };
@@ -90,14 +89,23 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    if (chatPageName === 'Chat') {
-      const url = createChatUrlParams('/app/social/chat/messages');
-      navigate(url);
-      if (chatList.length && !chatList[0].isRead) {
-        markMessagesAsRead(chatList[0]);
+    if (!onChatPage) return;
+
+    if (!location.search && chatList.length) {
+      const sortedList = [...chatList].sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      const firstChat = sortedList[0];
+
+      const url = createChatUrlParams('/app/social/chat/messages', firstChat);
+      navigate(url, { replace: true });
+
+      if (firstChat && !firstChat.isRead) {
+        markMessagesAsRead(firstChat);
       }
     }
-  }, [chatList, chatPageName, createChatUrlParams, markMessagesAsRead, navigate]);
+  }, [onChatPage, location.search, chatList, createChatUrlParams, markMessagesAsRead, navigate]);
 
   return (
     <div className="app-side-menu">
