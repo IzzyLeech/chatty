@@ -14,7 +14,6 @@ import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils-service';
 import useLocalStorage from '@hooks/useLocalStorage';
 import { followerService } from '@services/api/followers/follower.service';
-import { useLocation } from 'react-router-dom';
 
 const Streams = () => {
   const [posts, setPosts] = useState([]);
@@ -25,7 +24,6 @@ const Streams = () => {
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
   const storedUsername = useLocalStorage('username', 'get');
-const location = useLocation();
   const {
     posts: reduxPosts,
     totalPostsCount: reduxTotalPostsCount,
