@@ -9,7 +9,7 @@ import { socketService } from '@services/socket/socket.service';
 import { postService } from '@services/api/post/post.service';
 
 const CommentInputBox = ({ post }) => {
-  const { profile } = useSelector((state) => state);
+  const { profile } = useSelector((state) => state.user);
   const [comment, setComment] = useState('');
   const commentInputRef = useRef(null);
   const dispatch = useDispatch();

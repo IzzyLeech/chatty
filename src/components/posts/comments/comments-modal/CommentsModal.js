@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const CommentsModal = () => {
   const dispatch = useDispatch();
-  const { post } = useSelector((state) => state);
+  const { post } = useSelector((state) => state.post);
   const [postComments, setPostComments] = useState([]);
 
   const getPostComments = async () => {

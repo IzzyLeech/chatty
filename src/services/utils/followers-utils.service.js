@@ -45,8 +45,6 @@ export class FollowersUtils {
     });
   }
 
-
-
   static socketIORemoveFollowing(following, setFollowing) {
     socketService?.socket?.on('remove follower', (data) => {
       const updatedFollowing = filter(following, (user) => user._id !== data?._id);

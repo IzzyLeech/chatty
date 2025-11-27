@@ -17,7 +17,7 @@ import { Utils } from '@services/utils/utils.service';
 
 const EditPost = () => {
   const { gifModalIsOpen, feeling } = useSelector((state) => state.modal);
-  const { post } = useSelector((state) => state);
+  const { post } = useSelector((state) => state.post);
   const { profile } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState('');

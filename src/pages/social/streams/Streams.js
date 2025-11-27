@@ -13,7 +13,6 @@ import { orderBy, uniqBy } from 'lodash';
 import useInfiniteScroll from '@hooks/useInfiniteScroll';
 import { PostUtils } from '@services/utils/post-utils-service';
 import useLocalStorage from '@hooks/useLocalStorage';
-import { addReactions } from '@redux/reducers/post/user-post-reaction.reducer';
 import { followerService } from '@services/api/followers/follower.service';
 
 const Streams = () => {
@@ -21,11 +20,16 @@ const Streams = () => {
   const [loading, setLoading] = useState(true);
   const [totalPostsCount, setTotalPostsCount] = useState(0);
   const bodyRef = useRef(null);
-  const [following, setFollowing] = useState([])
+  const [following, setFollowing] = useState([]);
   const bottomLineRef = useRef();
   const dispatch = useDispatch();
   const storedUsername = useLocalStorage('username', 'get');
-  const { allPosts } = useSelector((state) => state);
+  const {
+    posts: reduxPosts,
+    totalPostsCount: reduxTotalPostsCount,
+    isLoading: reduxIsLoading
+  } = useSelector((state) => state.allPosts);
+
   let appPosts = useRef([]);
   const PAGE_SIZE = 10;
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,16 +87,15 @@ const Streams = () => {
   });
 
   useEffect(() => {
-    setLoading(allPosts?.isLoading);
-    const orderedPosts = orderBy(allPosts?.posts, ['createdAt'], ['desc']);
+    setLoading(reduxIsLoading);
+    const orderedPosts = orderBy(reduxPosts, ['createdAt'], ['desc']);
     setPosts(orderedPosts);
-    setTotalPostsCount(allPosts?.totalPostsCount);
-  }, [allPosts]);
+    setTotalPostsCount(reduxTotalPostsCount);
+  }, [reduxPosts, reduxTotalPostsCount, reduxIsLoading]);
 
   useEffect(() => {
     PostUtils.socketIOPost(posts, setPosts);
   }, [posts]);
-
   return (
     <div className="streams" data-testid="streams">
       <div className="streams-content">
