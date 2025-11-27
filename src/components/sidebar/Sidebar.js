@@ -1,6 +1,6 @@
 import '@components/sidebar/Sidebar.scss';
 import { sideBarItems, fontAwesomeIcons } from '@services/utils/static.data';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation, createSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPosts } from '@redux/api/posts';
@@ -16,7 +16,6 @@ const Sidebar = () => {
   const { profile } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const navigatedRef = useRef(false);
   const onChatPage = location.pathname.includes('/app/social/chat');
 
   const checkUrl = (name) => {
