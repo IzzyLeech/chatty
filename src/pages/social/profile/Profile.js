@@ -52,7 +52,7 @@ const Profile = () => {
               cancelFileSelection={() => {}}
               removeBackgroundImage={() => {}}
               tabItems={tabItems(username === profile?.username, username === profile?.username)}
-              tab={{}}
+              tab={''}
               hideSettings={username === profile?.username}
               galleryImages={[]}
             />
