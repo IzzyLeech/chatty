@@ -1,10 +1,10 @@
 import BackgroundHeader from '@components/background-header/BackgroundHeader';
 import '@pages/social/profile/Profile.scss';
+import { imageService } from '@services/api/image/image.service';
 import { userService } from '@services/api/user/user.service';
 import { tabItems } from '@services/utils/static.data';
 import { Utils } from '@services/utils/utils.service';
 import { useCallback, useEffect, useState } from 'react';
-import { FaLess } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ const Profile = () => {
   const [hasImage, setHasImage] = useState(false);
   const [selectedBackgroundImage, setSelectedBackgroundImage] = useState('');
   const [selectedProfileImage, setSelectedProfileImage] = useState('');
-  const [bgUrl, setBgurl] = useState('');
+  const [bgUrl, setBgUrl] = useState('');
   const [galleryImages, setGalleryImages] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,10 +47,22 @@ const Profile = () => {
         searchParams.get('uId')
       );
       setUser(response.data.user);
+      // setUserProfileData(response.data);
+      setBgUrl(Utils.getImage(response.data.user?.bgImageId, response.data.user?.bgImageVersion));
+      setLoading(false);
     } catch (error) {
       Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
     }
   }, [dispatch, searchParams, username]);
+
+  const getUserImages = useCallback(async () => {
+    try {
+      const imagesResponse = await imageService.getUserImages(searchParams.get('id'));
+      setGalleryImages(imagesResponse.data.images);
+    } catch (error) {
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  }, [dispatch, searchParams]);
 
   const cancelFileSelection = () => {
     setHasImage(!hasImage);
@@ -59,16 +71,57 @@ const Profile = () => {
     setHasError(false);
   };
 
-  const saveImage = (type) => {};
+  const saveImage = (type) => {
+    const reader = new FileReader();
 
-  const removeBackgroundImage = (type) => {};
+    reader.onload = () => {
+      addImage(reader.result, type);
+    };
+    const file = type === 'background' ? selectedBackgroundImage : selectedProfileImage;
+    if (file && typeof file !== 'string') {
+      reader.readAsDataURL(file);
+    } else {
+      addImage(file, type);
+    }
+  };
+
+  const addImage = async (result, type) => {
+    try {
+      const url = type === 'background' ? '/images/background' : '/images/profile';
+      const response = await imageService.addImage(url, result);
+      if (response) {
+        Utils.dispatchNotification(response.data.message, 'success', dispatch);
+        setHasError(false);
+        setHasImage(false);
+      }
+    } catch (error) {
+      setHasError(true);
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
+  const removeBackgroundImage = async (bgImageId) => {
+    try {
+      setBgUrl('');
+      await removeImage(`/images/background/${bgImageId}`);
+    } catch (error) {
+      setHasError(true);
+      Utils.dispatchNotification(error.response.data.message, 'error', dispatch);
+    }
+  };
+
+  const removeImage = async (url) => {
+    const response = await imageService.removeImage(url);
+    Utils.dispatchNotification(response.data.message, 'success', dispatch);
+  };
 
   useEffect(() => {
     if (rendered) {
       getUserProfileByUsername();
+      getUserImages();
     }
     if (!rendered) setRendered(true);
-  }, [rendered, getUserProfileByUsername]);
+  }, [rendered, getUserProfileByUsername, getUserImages]);
 
   return (
     <>

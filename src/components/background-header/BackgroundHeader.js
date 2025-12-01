@@ -1,5 +1,4 @@
 import Avatar from '@components/avatar/Avatar';
-import '@components/background-header/BackgroundHeader.scss';
 import Button from '@components/button/Button';
 import ImageGridModal from '@components/image-grid-modal/ImageGridModal';
 import Input from '@components/input/Input';
@@ -7,7 +6,8 @@ import Spinner from '@components/spinner/Spinner';
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { FaCamera } from 'react-icons/fa';
-import BackgroundHeaderSkeleton from './BackgroundHeaderSkeleton';
+import '@components/background-header/BackgroundHeader.scss';
+import BackgroundHeaderSkeleton from '@components/background-header/BackgroundHeaderSkeleton';
 
 const BackgroundHeader = ({
   user,
@@ -15,8 +15,8 @@ const BackgroundHeader = ({
   url,
   onClick,
   tab,
-  tabItems,
   hasImage,
+  tabItems,
   hasError,
   hideSettings,
   selectedFileImage,
@@ -26,7 +26,7 @@ const BackgroundHeader = ({
   galleryImages
 }) => {
   const [selectedBackground, setSelectedBackground] = useState('');
-  const [selectedProfileImage, setSlectedProfileImage] = useState('');
+  const [selectedProfileImage, setSelectedProfileImage] = useState('');
   const [showSpinner, setShowSpinner] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [showImagesModal, setShowImagesModal] = useState(false);
@@ -41,13 +41,14 @@ const BackgroundHeader = ({
     profileImageRef.current.click();
   };
 
-  const hideSaveChangeContainer = () => {
+  const hideSaveChangesContainer = () => {
     setSelectedBackground('');
-    setSlectedProfileImage('');
+    setSelectedProfileImage('');
     setShowSpinner(false);
   };
 
   const onAddProfileClick = () => setIsActive(!isActive);
+
   const BackgroundSelectDropdown = () => {
     return (
       <nav className="menu" data-testid="menu">
@@ -111,7 +112,7 @@ const BackgroundHeader = ({
                       handleClick={() => {
                         setShowSpinner(false);
                         cancelFileSelection();
-                        hideSaveChangeContainer();
+                        hideSaveChangesContainer();
                       }}
                     />
                     <Button
@@ -153,14 +154,15 @@ const BackgroundHeader = ({
             <div
               data-testid="profile-pic"
               className="profile-pic"
-              style={{ width: `${user?.profilePicture ? '180px' : ''}` }}
+              style={{
+                width: `${user?.profilePicture ? '180px' : ''}`
+              }}
             >
               <Avatar
                 name={user?.username}
                 bgColor={user?.avatarColor}
                 textColor="#ffffff"
                 size={180}
-                //   round={circularPic}
                 avatarSrc={selectedProfileImage || user?.profilePicture}
               />
               {hideSettings && (
@@ -175,8 +177,8 @@ const BackgroundHeader = ({
                         profileImageRef.current.value = null;
                       }
                     }}
-                    handleClick={(event) => {
-                      setSlectedProfileImage(URL.createObjectURL(event.target.files[0]));
+                    handleChange={(event) => {
+                      setSelectedProfileImage(URL.createObjectURL(event.target.files[0]));
                       selectedFileImage(event.target.files[0], 'profile');
                     }}
                   />
@@ -199,8 +201,8 @@ const BackgroundHeader = ({
                       backgroundFileRef.current.value = null;
                     }
                   }}
-                  handleClick={(event) => {
-                    setSlectedProfileImage(URL.createObjectURL(event.target.files[0]));
+                  handleChange={(event) => {
+                    setSelectedBackground(URL.createObjectURL(event.target.files[0]));
                     selectedFileImage(event.target.files[0], 'background');
                   }}
                 />
@@ -216,7 +218,7 @@ const BackgroundHeader = ({
               {tabItems.map((data) => (
                 <div data-testid="tab-elements" key={data.key}>
                   {data.show && (
-                    <li className="banner-nav-item">
+                    <li className="banner-nav-item" key={data.key}>
                       <div
                         className={`banner-nav-item-name ${tab === data.key.toLowerCase() ? 'active' : ''}`}
                         onClick={() => onClick(data.key.toLowerCase())}
