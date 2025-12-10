@@ -116,11 +116,18 @@
                 border: 1px solid var(--white-13);
                 padding: 0 4px;
 
-                &:empty::before {
+                br:only-child {
+                  display: none;
+                }
+
+                &:empty::before,
+                &:has(br:only-child)::before {
                   content: attr(data-placeholder);
                   color: var(--gray-1);
+                  pointer-events: none;
                 }
               }
+
 
               .no-information {
                 font-style: italic;
@@ -174,9 +181,15 @@
                 padding: 0 4px;
                 overflow-x: scroll;
 
-                &:empty::before {
+                br:only-child {
+                  display: none;
+                }
+
+                &:empty::before,
+                &:has(br:only-child)::before {
                   content: attr(data-placeholder);
                   color: var(--gray-1);
+                  pointer-events: none;
                 }
               }
 

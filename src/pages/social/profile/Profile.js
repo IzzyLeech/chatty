@@ -1,5 +1,5 @@
 import BackgroundHeader from '@components/background-header/BackgroundHeader';
-import TimeLine from '@components/timeline/Timeline';
+import Timeline from '@components/timeline/Timeline';
 import '@pages/social/profile/Profile.scss';
 import { imageService } from '@services/api/image/image.service';
 import { userService } from '@services/api/user/user.service';
@@ -58,7 +58,7 @@ const Profile = () => {
         searchParams.get('uId')
       );
       setUser(response.data.user);
-      // setUserProfileData(response.data);
+      setUserProfileData(response.data);
       setBgUrl(Utils.getImage(response.data.user?.bgImageId, response.data.user?.bgImageVersion));
       setLoading(false);
     } catch (error) {
@@ -145,7 +145,6 @@ const Profile = () => {
     }
     if (!rendered) setRendered(true);
   }, [rendered, getUserProfileByUsername, getUserImages]);
-
   return (
     <>
       {showImageModal && (
@@ -182,7 +181,7 @@ const Profile = () => {
             />
           </div>
           <div className="profile-content">
-            {displayContent === 'timeline' && <TimeLine userProfileData={userProfileData} loading={loading} />}
+            {displayContent === 'timeline' && <Timeline userProfileData={userProfileData} loading={loading} />}
             {displayContent === 'followers' && <FollowerCard userData={user} />}
             {displayContent === 'gallery' && (
               <>
